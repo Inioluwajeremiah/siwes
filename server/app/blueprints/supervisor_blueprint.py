@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, jsonify, request
-from app.databaseModel import User, Supervisor
+from app.databaseModel import User, Supervisor, Student
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.status_codes import HTTP_200_OK, HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED_ACCESS
 
@@ -18,10 +18,24 @@ def supervisor_only(func):
 
     return wrapper
 
-@supervisor_blueprint.route('/supervisor', methods=['GET', 'POST'])
+@supervisor_blueprint.route('/supervisor/students/<:id>', methods=['GET', 'POST'])
 @jwt_required()
 @supervisor_only
 def supervisor():
+
+    weekno = request.json['weekno']
+    remark = request.json["remark"]
+    date = request.json['date']
+
+    return "Hello world"
+
+# get students under your supervision - query student table and filter by department
+@supervisor_blueprint.route('/supervisor/students', methods=['GET'])
+@jwt_required()
+@supervisor_only
+def supervisor():
+
+    my_students = Student.query.filter_by(depa)
 
     weekno = request.json['weekno']
     remark = request.json["remark"]
