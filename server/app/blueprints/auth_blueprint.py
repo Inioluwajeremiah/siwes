@@ -6,7 +6,7 @@ from app.status_codes import HTTP_200_OK, HTTP_201_CREATED,\
     HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED_ACCESS, HTTP_404_NOT_FOUND, \
     HTTP_409_CONFLICT, HTTP_500_INTERNAL_SERVER_ERROR
 import random
-from app.databaseModel import db, Student
+from app.databaseModel import db, Student, Supervisor
 from app import mail
 from flask_mail import Message
 import datetime
@@ -100,9 +100,9 @@ def sendEmail(eml, code):
 def index():
     return "home page"
 
-# register user
+# register student
 @auth_blueprint.route('/student/register', methods=['POST'])
-def register():
+def register_student():
 
     firstName = request.json['firstname'];
     middleName = request.json['middlename']
@@ -205,6 +205,79 @@ def register():
 
     # return {"success": "Verification code has been sent to ur email", "email": email}, HTTP_201_CREATED
 
+# register supervisor
+@auth_blueprint.route('/supervisor/register', methods=['POST'])
+def register_supervisor():
+
+    firstName = request.json['firstname'];
+    middleName = request.json['middlename']
+    lastName = request.json['lastname']
+    email = request.json['email'] 
+    gender  = request.json['gender']   
+    department = request.json['department']
+    salutation = request.json['salutation']
+    password = request.json['password']
+    role = request.json['role']
+
+    # clean input
+    firstName = Markup.escape(firstName)
+    middleName = Markup.escape(middleName)
+    lastName = Markup.escape(lastName)
+    email = Markup.escape(email)
+    gender =  Markup.escape(gender)
+    department =  Markup.escape(department)
+    salutation =  Markup.escape(salutation)
+    password =  Markup.escape(password)
+    role =  Markup.escape(role)
+
+    is_user_verified = Supervisor.query.filter_by(email=email, is_verified=True).first()
+    user_by_email = Supervisor.query.filter_by(email=email, is_verified=False).first()
+   
+    if is_user_verified:
+        return {"error_message": "Student already exists"}, HTTP_409_CONFLICT
+    if user_by_email and not is_user_verified:
+        return {"error_message": f"{email} registered but not verified"}, HTTP_409_CONFLICT
+    if not firstName:
+         return{"error_message": "Firstname is required"}, HTTP_400_BAD_REQUEST
+    if not middleName:
+         return{"error_message":"Middlename is required"}, HTTP_400_BAD_REQUEST
+    if not lastName:
+         return{"error_message": "Last name is required"}, HTTP_400_BAD_REQUEST
+    if not validators.email(email):
+        return {"error_message":"Invalid email address"}, HTTP_400_BAD_REQUEST
+    if not gender:
+         return{"error_message": "Gender is required"}, HTTP_400_BAD_REQUEST
+    if not department:
+         return{"error_message": "Department is required"}, HTTP_400_BAD_REQUEST
+    if not is_valid_password(password):
+        return {"error_message": "Invalid password"}, HTTP_400_BAD_REQUEST
+    if not role:
+        return {"error_message": "Select your role"}, HTTP_400_BAD_REQUEST
+    
+
+    # hash user password
+    hashed_password = generate_password_hash(password)
+    # expiration time
+    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+    # generateotp
+    otp = generate_random_code()
+
+    # send authentication code to user
+    try:
+        sendEmail(email, otp)
+            # add user to database
+        user = Supervisor(
+            firstName=firstName, middleName=middleName, lastName=lastName, gender=gender, email=email, 
+            department=department, salutation=salutation, role=role, password=hashed_password, 
+            otp=otp,  expiration_time=expiration_time
+            )
+        db.session.add(user)
+        db.session.commit()
+        return {"success_message": "Authentication code sent to user email"}, HTTP_200_OK
+    except Exception as e:
+            return {"error_message": f"error sending authentication code. Reason{e}"}, HTTP_500_INTERNAL_SERVER_ERROR
+    
+
 # verify user
 @auth_blueprint.route('/verify-email/<token>', methods=['GET'])
 def verify_user(token):
@@ -242,70 +315,132 @@ def verify_User():
         # get code and email from form
     email = request.json['email']
     input_code = request.json['code']
+    role = request.json['role']
 
     # clean email and code
     email = Markup.escape(email)
     input_code =  Markup.escape(input_code)
+    role = Markup.escape(role);
 
-    # fetch user from database with retrieved email
-    user = Student.query.filter_by(email=email).first()
-    # if user does not exist in database
-    if user is None:
-        return {"error_message": "Student does not exist, kindly Sign up to continue"}, HTTP_404_NOT_FOUND
-    
-    #  if user is already verified
-    if user.is_verified:
-        return {"error_message": "Student already verified, you can proceed to login"}, HTTP_400_BAD_REQUEST
-    
-    # compare input code and retrieved code
-    user_otp = user.otp
-    if input_code != user_otp:
-        return {"error_message": "Code does not match"}, HTTP_400_BAD_REQUEST
-    
-    time_difference = user.expiration_time - datetime.datetime.utcnow()
-    
-    if time_difference.total_seconds() <= 0:
-        return {"error_message": "token has expired"}
-    
-    # compare input code and retrieved code
-    if user and user_otp == input_code:
+    if role == "student":
+         # fetch user from database with retrieved email
+        user = Student.query.filter_by(email=email).first()
+        # if user does not exist in database
+        if user is None:
+            return {"error_message": "Student does not exist, kindly Sign up to continue"}, HTTP_404_NOT_FOUND
+        
+        #  if user is already verified
+        if user.is_verified:
+            return {"error_message": "Student already verified, you can proceed to login"}, HTTP_400_BAD_REQUEST
+        
+        # compare input code and retrieved code
+        user_otp = user.otp
+        if input_code != user_otp:
+            return {"error_message": "Code does not match"}, HTTP_400_BAD_REQUEST
+        
+        time_difference = user.expiration_time - datetime.datetime.utcnow()
+        
+        if time_difference.total_seconds() <= 0:
+            return {"error_message": "token has expired"}
+        
+        # compare input code and retrieved code
+        if user and user_otp == input_code:
 
-        # print(input_code ==  user.otp)
-        # update user is_verified status in the databse
-        user.is_verified = True
-        db.session.add(user)
-        db.session.commit()
-        # delete email from session
-        session.pop('email', None)
-        return {"success_message": "Student verification successful"},  HTTP_200_OK
-    
+            # print(input_code ==  user.otp)
+            # update user is_verified status in the databse
+            user.is_verified = True
+            db.session.add(user)
+            db.session.commit()
+            # delete email from session
+            session.pop('email', None)
+            return {"success_message": "Student verification successful"},  HTTP_200_OK
 
+    if role == "supervisor":
+         # fetch user from database with retrieved email
+        user = Supervisor.query.filter_by(email=email).first()
+        # if user does not exist in database
+        if user is None:
+            return {"error_message": "User does not exist, kindly Sign up to continue"}, HTTP_404_NOT_FOUND
+        
+        #  if user is already verified
+        if user.is_verified:
+            return {"error_message": "User already verified, you can proceed to login"}, HTTP_400_BAD_REQUEST
+        
+        # compare input code and retrieved code
+        user_otp = user.otp
+        if input_code != user_otp:
+            return {"error_message": "Code does not match"}, HTTP_400_BAD_REQUEST
+        
+        time_difference = user.expiration_time - datetime.datetime.utcnow()
+        
+        if time_difference.total_seconds() <= 0:
+            return {"error_message": "token has expired"}
+        
+        # compare input code and retrieved code
+        if user and user_otp == input_code:
+
+            # print(input_code ==  user.otp)
+            # update user is_verified status in the databse
+            user.is_verified = True
+            db.session.add(user)
+            db.session.commit()
+            # delete email from session
+            session.pop('email', None)
+            return {"success_message": "User verification successful"},  HTTP_200_OK
+    
+    
 # resend verification code
 @auth_blueprint.route('/resend_code', methods=['POST'])
 def resend_code():
+
+    role = request.json['resend_role']
     email = request.json['email']
-    user_verified = Student.query.filter_by(email=email, is_verified=True).first()
-    user = Student.query.filter_by(email=email, is_verified=False).first()
 
-    if user_verified:
-         return {"error_message": "Student already verified"}, HTTP_409_CONFLICT
-    if not user:
-         return {"error_message": "Student not found"}, HTTP_404_NOT_FOUND
-    if user:
-        # expiration time
-        expiration_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
-        otp = generate_random_code()
-        user.otp = otp
-        user.expiration_time = expiration_time
+    if role == 'student':
 
-        db.session.add(user)
-        db.session.commit()
-        sendEmail(email, otp)
-        return {"success_message": f"Authentication code sent to {email}"}
+        user_verified = Student.query.filter_by(email=email, is_verified=True).first()
+        user = Student.query.filter_by(email=email, is_verified=False).first()
+
+        if user_verified:
+            return {"error_message": "Student already verified"}, HTTP_409_CONFLICT
+        if not user:
+            return {"error_message": "Student not found"}, HTTP_404_NOT_FOUND
+        if user:
+            # expiration time
+            expiration_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+            otp = generate_random_code()
+            user.otp = otp
+            user.expiration_time = expiration_time
+
+            db.session.add(user)
+            db.session.commit()
+            sendEmail(email, otp)
+            return {"success_message": f"Authentication code sent to {email}"}
+    
+    if role == "supervisor":
+
+        user_verified = Supervisor.query.filter_by(email=email, is_verified=True).first()
+        user = Supervisor.query.filter_by(email=email, is_verified=False).first()
+
+        if user_verified:
+            return {"error_message": "User already verified"}, HTTP_409_CONFLICT
+        if not user:
+            return {"error_message": "User not found"}, HTTP_404_NOT_FOUND
+        if user:
+            # expiration time
+            expiration_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
+            otp = generate_random_code()
+            user.otp = otp
+            user.expiration_time = expiration_time
+
+            db.session.add(user)
+            db.session.commit()
+            sendEmail(email, otp)
+            return {"success_message": f"Authentication code sent to {email}"}
         
 # user login
-@auth_blueprint.route('/login', methods=['POST'])
-def login():
+@auth_blueprint.route('/student/login', methods=['POST'])
+def student_login():
         
         email = request.json.get('email')
         password = request.json.get('password')
@@ -357,11 +492,61 @@ def login():
                 return response, HTTP_200_OK
             else:
                 return {"error_message": "Incorrect password"}, HTTP_401_UNAUTHORIZED_ACCESS
-                
+ 
+# supervisor login
+@auth_blueprint.route('/supervisor/login', methods=['POST'])
+def supervisor_login():
+        
+    email = request.json.get('email')
+    password = request.json.get('password')
+
+    # clean inputs
+    email =  Markup.escape(email)
+    password =  Markup.escape(password)
+
+    user = Supervisor.query.filter_by(email=email).first()
+
+    if not user:
+        return {"error_message": "User not found. Sign up to continue"}, HTTP_401_UNAUTHORIZED_ACCESS
+
+    # check if user is signed up but not authenticate
+    if user and not user.is_verified:
+        return {"error_message": "User not yet authenticate"}, HTTP_401_UNAUTHORIZED_ACCESS
+    
+    if user and user.is_verified:
+        is_password_correct = check_password_hash(user.password, password)
+        if is_password_correct:
+
+            access_token = create_access_token(identity=user.id)
+            # generate csrf token
+            csrf_token = urandom(16).hex();
+
+            response = jsonify({
+                'success_message': 'Login successful!', 
+                'id': user.id,
+                'firstName':user.firstName,
+                'middleName': user.middleName,
+                'lastName':user.lastName,
+                'gender': user.gender,
+                "email": user.email, 
+                'department': user.department,
+                'salutation': user.salutation,
+                'csrf_token': csrf_token,
+                'role': user.role
+            })
+            
+            # Set the http-only JWT cookie
+            response.set_cookie('access_token', access_token, httponly=True)
+            # Set the double submit token as a readable cookie
+            response.set_cookie('csrf_token', csrf_token)
+
+            return response, HTTP_200_OK
+        else:
+            return {"error_message": "Incorrect password"}, HTTP_401_UNAUTHORIZED_ACCESS
+
 # user logout
 @auth_blueprint.post('/logout')
 def logout():
-    response = jsonify({"success_messsage": "logout successful"})
+    response = jsonify({"success_message": "logout successful"})
     unset_jwt_cookies(response)
     return response
- 

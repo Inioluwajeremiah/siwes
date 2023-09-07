@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Roboto } from 'next/font/google'
+import SiwesReduxProvider from '../store/SiwesReduxProvider'
 
 
 const roboto = Roboto({ 
@@ -21,7 +22,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={roboto.className}>{children}</body>
+      <body className={roboto.className}>
+        <SiwesReduxProvider>
+          {children}
+        </SiwesReduxProvider>
+      </body>
     </html>
   )
 }

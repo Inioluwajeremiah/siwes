@@ -1,6 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../components/header'
+import { useSelector } from 'react-redux'
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 
 const AddDailyActivity = () => {
 
@@ -22,7 +24,6 @@ const AddDailyActivity = () => {
       
     })
   }
-
 
   return <section className='transition-all duration-500 ease-in md:w-[500px] border-[#f3f2f2] border-[1px] shadow-lg p-8 flex flex-col' aria-label="Main Content" role="region">
     <h1 className=' text-xl text-center font-bold p-4 text-blue-500'>Add Daily Activity</h1>
@@ -119,35 +120,72 @@ const Profile = () => {
 
 const Student = () => {
 
-  const [selectedContent, setSelectedContent] = useState(1)
+  let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+  if (user_details) {
+    user_details = JSON.parse(user_details) ;
+  }
 
-  return <>
-    <Header/>
-      <main className='container mx-auto my-28  p-8 flex flex-col md:flex-row '>
-        <aside aria-label='side navigation' className='max-w-[500px] p-8 mr-28 shadow-md border border-[#ddd]'>
-          <h1 className='pb-4 font-bold'>Menu</h1>
-          <nav aria-label='side menu'>
-            <ul className='flex flex-col justify-start items-start'>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(1)}>Add daily activity</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(2)}>Display daily activities</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(3)}>Add weekly summary</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(4)}>Display weekly activities</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(5)}>Profile</button>
-            </ul>
-          </nav>
-        </aside>
+  const [selectedContent, setSelectedContent] = useState(1);
+  const [toggleSubmenu, setToggleSubMenu] = useState(false);
 
-        {
-          selectedContent == 1 ? <AddDailyActivity/>  
-          : selectedContent == 2 ? <DailyActivityTable/>
-          : selectedContent == 3 ? <AddWeeklyActivity/>
-          : selectedContent == 4 ? <WeeklyActivityTable/>
-          : selectedContent == 5 ? <Profile/>
-          : ""
-      }
+  const ToggleSubMenu = () => {
+    setToggleSubMenu(!toggleSubmenu)
+  }
 
-      </main>
-  </>
+  if (user_details && user_details.login == true && user_details.role == "student") {
+
+    return <>
+      <Header/>
+        <main className='container mx-auto flex flex-col md:flex-row '>
+          <aside aria-label='side navigation' className='w-[100%] md:w-[25%]  md: mt-20 md:p-4 md:mr-28'>
+            
+            <div className='flex flex-row items-center h-16 md:hidden bg-slate-100 p-4'>
+              <button className='mr-4 h-7 w-7' onClick={ToggleSubMenu}>
+                {toggleSubmenu ? <AiOutlineClose/> : <AiOutlineMenu/> }
+              </button>
+              <h1 className='font-bold'>Menu</h1>
+            </div>
+            
+            <nav aria-label='side menu' 
+              className={`w-[70%] h-[100vh] absolute bg-white p-8 shadow-md border border-[#ddd] 
+                transition-all duration-500 ease-linear md:h-fit md:w-full md:static md:mb-8
+                ${toggleSubmenu ? 'left-0' : '-left-[70%]'}
+                
+              `}
+            >
+              <ul className='flex flex-col justify-start items-start'>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(1)}>Add daily activity</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(2)}>Display daily activities</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(3)}>Add weekly summary</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(4)}>Display weekly activities</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-blue-500 rounded-sm' onClick={()=> setSelectedContent(5)}>Profile</button>
+              </ul>
+            </nav>
+
+            {/* empty div */}
+            <div 
+              className={`absolute w-[30%] h-[100vh] md:hidden ${toggleSubmenu ? 'right-0' : '-left-[30%]'}`}
+              onClick={ToggleSubMenu}
+            >
+            </div>
+          </aside>
+
+          <section className='my-24'>
+            {
+              selectedContent == 1 ? <AddDailyActivity/>  
+              : selectedContent == 2 ? <DailyActivityTable/>
+              : selectedContent == 3 ? <AddWeeklyActivity/>
+              : selectedContent == 4 ? <WeeklyActivityTable/>
+              : selectedContent == 5 ? <Profile/>
+              : ""
+            }
+          </section>
+
+        </main>
+    </>
+  } else {
+    window.open('/signin', '_self')
+  }
 }
 
 export default Student

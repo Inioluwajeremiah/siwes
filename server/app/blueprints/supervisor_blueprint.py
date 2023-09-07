@@ -1,6 +1,6 @@
 from functools import wraps
-from flask import Blueprint, jsonify
-from app.databaseModel import User
+from flask import Blueprint, jsonify, request
+from app.databaseModel import User, Supervisor
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.status_codes import HTTP_200_OK, HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED_ACCESS
 
@@ -18,8 +18,13 @@ def supervisor_only(func):
 
     return wrapper
 
-@supervisor_blueprint.route('/', methods=['GET', 'POST'])
+@supervisor_blueprint.route('/supervisor', methods=['GET', 'POST'])
 @jwt_required()
 @supervisor_only
 def supervisor():
+
+    weekno = request.json['weekno']
+    remark = request.json["remark"]
+    date = request.json['date']
+
     return "Hello world"

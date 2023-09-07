@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import Header from '../components/header'
-
+import { useSelector } from 'react-redux'
 
 const AddDailyActivity = () => {
   return <section className='md:w-[500px] border-[#f3f2f2] border-[1px] shadow-lg p-8 flex flex-col' aria-label="Main Content" role="region">
@@ -99,35 +99,45 @@ const Profile = () => {
 
 const Admin = () => {
 
+  let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+  if (user_details) {
+    user_details = JSON.parse(user_details) ;
+  }
+
   const [selectedContent, setSelectedContent] = useState(1)
 
-  return <>
-    <Header/>
-      <main className='container mx-auto my-28  p-8 flex flex-col md:flex-row '>
-        <aside aria-label='side navigation' className='max-w-[500px] p-8 mr-28 shadow-md border border-[#ddd]'>
-          <h1 className='pb-4 font-bold'>Menu</h1>
-          <nav aria-label='side menu'>
-            <ul className='flex flex-col justify-start items-start'>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(1)}>Add daily activity</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(2)}>Display daily activities</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(3)}>Add weekly summary</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(4)}>Display weekly activities</button>
-              <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(5)}>Profile</button>
-            </ul>
-          </nav>
-        </aside>
+  if (user_details.login == true && user_details.role == "admin") {
 
-        {
-          selectedContent == 1 ? <AddDailyActivity/>  
-          : selectedContent == 2 ? <DailyActivityTable/>
-          : selectedContent == 3 ? <AddWeeklyActivity/>
-          : selectedContent == 4 ? <WeeklyActivityTable/>
-          : selectedContent == 5 ? <Profile/>
-          : ""
-      }
+    return <>
+      <Header/>
+        <main className='container mx-auto my-28  p-8 flex flex-col md:flex-row '>
+          <aside aria-label='side navigation' className='max-w-[500px] p-8 mr-28 shadow-md border border-[#ddd]'>
+            <h1 className='pb-4 font-bold'>Menu</h1>
+            <nav aria-label='side menu'>
+              <ul className='flex flex-col justify-start items-start'>
+                <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(1)}>Add daily activity</button>
+                <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(2)}>Display daily activities</button>
+                <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(3)}>Add weekly summary</button>
+                <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(4)}>Display weekly activities</button>
+                <button className='p-4 w-60 hover:cursor-pointer text-start text-white mb-4 bg-purple-700 rounded-sm' onClick={()=> setSelectedContent(5)}>Profile</button>
+              </ul>
+            </nav>
+          </aside>
 
-      </main>
-  </>
+          {
+            selectedContent == 1 ? <AddDailyActivity/>  
+            : selectedContent == 2 ? <DailyActivityTable/>
+            : selectedContent == 3 ? <AddWeeklyActivity/>
+            : selectedContent == 4 ? <WeeklyActivityTable/>
+            : selectedContent == 5 ? <Profile/>
+            : ""
+        }
+
+        </main>
+    </>
+  } else {
+    window.open('/signin', '_self')
+  }
 }
 
 export default Admin

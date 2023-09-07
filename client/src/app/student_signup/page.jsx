@@ -201,11 +201,11 @@ const SignUp = () => {
                         placeholder='Course' id='course' name='course' onChange={(e) => setCourse(e.target.value)}
                         required
                         />
-                    <div className='flex flex-row justify-between'>
+                    <div className='flex flex-row gap-2'>
                         <div className='flex flex-col'>
                             <label htmlFor="level">Level</label>
                             <select aria-label='select level' id='level' 
-                                className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] p-2'
+                                className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2'
                                 onChange={(e) => setLevel(e.target.value)} name='level' required>
                                 <option value="" defaultValue={""} className=' italic'>Select Level</option>
                                 <option value="100">100</option>  
@@ -217,18 +217,15 @@ const SignUp = () => {
                             </select>
                         </div>
                         <div className='flex flex-col'>
-                            <label htmlFor="role">Role: student</label>
-                            <input type="radio" onChange={(e) => setRole(e.target.value)} checked={role === 'student'}
-                                name='role' value='student' id='role'  className='my-2' required
-                            />
+                            <label htmlFor="role">Role</label>
+                            <select name="role" id="role" 
+                                className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
+                                onClick={(e) => setRole(e.target.value)}>
+                                <option value="admin">Admin</option>
+                                <option value="supervisor">Supervisoor</option>
+                                <option value="student">Student</option>
+                            </select>
                         </div>
-                        {/* <select aria-label='select role' id='role' 
-                            className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] p-2'
-                            onChange={(e) => setRole(e.target.value)}>
-                            <option value="" defaultValue={""} className=' italic'>Select Role</option>
-                            <option value="admin">Admin</option>  
-                            <option value="student">Student</option> 
-                        </select> */}
                     </div>
                     <label htmlFor='ppa'>Place of Attachment</label>
                     <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
