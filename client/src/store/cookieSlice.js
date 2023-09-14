@@ -12,6 +12,7 @@ const cookie_slice = createSlice ({
               for (const cookie of cookies) {
                 const [cookie_name, cookie_value] = cookie.trim().split('=');
                 state[cookie_name] = cookie_value;
+              }
             }
         }
     }
