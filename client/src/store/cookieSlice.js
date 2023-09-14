@@ -6,12 +6,14 @@ const cookie_slice = createSlice ({
     initialState:{},
     reducers: {
         get_all_cookies: (state) => {
-            const cookies = document.cookie.split(';');
-            for (const cookie of cookies) {
+            if (typeof document !== 'undefined') {
+              // Ensure this code runs only in a browser environment
+              const cookies = document.cookie.split(';');
+              for (const cookie of cookies) {
                 const [cookie_name, cookie_value] = cookie.trim().split('=');
                 state[cookie_name] = cookie_value;
             }
-        },
+        }
     }
 });
 export const { get_all_cookies } = cookie_slice.actions;
