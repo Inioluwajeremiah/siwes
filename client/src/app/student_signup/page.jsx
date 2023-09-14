@@ -49,7 +49,7 @@ const SignUp = () => {
         } else if (!endDate) {
             alert ("input end date")
         } else if (!supervisorName) {
-            alert("Input supervisor's full name")
+            alert("Input supervisor\'s full name")
         }
         else if (!gender) {
             alert ("select gender")
@@ -186,7 +186,7 @@ const SignUp = () => {
                             />
                         </div>
                     </div>
-                    <label htmlFor='supervisor_name'>Supervisor's Name</label>
+                    <label htmlFor='supervisor_name'>Supervisor&apos;s Name</label>
                     <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
                         placeholder='Firstname Middlename Lastname' id='supervisor_name' name='supervisor_name' onChange={(mn) => setSupervisorName(mn.target.value)} required
                     />

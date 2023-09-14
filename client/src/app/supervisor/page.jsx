@@ -197,8 +197,8 @@ const Supervisor = () => {
             >
               <ul className='flex flex-col justify-start items-start'>
                 <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(1)}>Add daily activity</button>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(2)}>Students' daily activities</button>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(3)}>Students' weekly activities</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(2)}>Students&apos; daily activities</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(3)}>Students&apos; weekly activities</button>
                 <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(4)}>Weekly Remarks</button>
                 <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(5)}>Profile</button>
               </ul>
