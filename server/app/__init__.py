@@ -36,23 +36,25 @@ def create_app(test_config=None):
     migrate = Migrate(app, db)
     JWTManager(app)
     # cors = CORS(app)
-    CORS(app, origins="http://localhost:3000")
+    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
     
 
-    @app.route('/')
-    def appIndex():
-        return "app home page"
+    # @app.route('/')
+    # def appIndex():
+    #     return "app home page"
 
 
     # relative imports
     from .blueprints.students_blueprint import student_blueprint
     from .blueprints.admin_blueprint import admin_blueprint
     from .blueprints.auth_blueprint import auth_blueprint
+    from .blueprints.supervisors_blueprint import supervisor_blueprint
 
     # Register blueprints
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(student_blueprint, url_prefix='/student')
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    app.register_blueprint(supervisor_blueprint, url_prefix="/supervisor")
 
 
     # create database table and remove it since flask migration willl tcreate our table

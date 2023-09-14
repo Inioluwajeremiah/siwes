@@ -11,6 +11,7 @@ class Student(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)  
     startDate = db.Column(db.DateTime, nullable=False)
     endDate   =  db.Column(db.DateTime, nullable=False)
+    supervisorName = db.Column(db.String(500), nullable=False)
     gender  = db.Column(db.String(100), nullable=False) 
     matricNo = db.Column(db.String(300), unique=True, nullable=False)
     department = db.Column(db.String(300), nullable=False)
@@ -42,7 +43,6 @@ class StudentActivity(db.Model):
 
     def __repr__(self):
         return f'Student activities: \n{self.id} \n{self.activity} \n{self.weekNo} \n{self.date}'
-
     
 
 class StudentWeeklySummary(db.Model):
@@ -81,10 +81,10 @@ class Supervisor(db.Model):
     # relationship:  
     # One-to-Many relationship with SupervisorActivity (based on id)
     supervisor_activities = db.relationship('SupervisorActivity', backref='supervisor', lazy=True)
-    
 
 class SupervisorActivity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, nullable=False)
     weekNo = db.Column(db.Integer, nullable=False)
     remark = db.Column(db.String(200), nullable = False)
     date = db.Column(db.DateTime, nullable = False)

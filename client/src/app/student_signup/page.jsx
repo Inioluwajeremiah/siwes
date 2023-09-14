@@ -21,6 +21,7 @@ const SignUp = () => {
     const [password, setPassword] = useState('');
     const [cpassword, setCpaasword] = useState('')
     const [resendCodedialog, setResendCodeDialog] = useState(false)
+    const [supervisorName, setSupervisorName] = useState('')
 
     const [registerLoading, setRegisterLoading] = useState(false)
     const [resendcodeLoading, setResendLoading] = useState(false)
@@ -47,7 +48,10 @@ const SignUp = () => {
             alert("input start date")
         } else if (!endDate) {
             alert ("input end date")
-        } else if (!gender) {
+        } else if (!supervisorName) {
+            alert("Input supervisor's full name")
+        }
+        else if (!gender) {
             alert ("select gender")
         } else if (!department) {
             alert ("input departmenet")
@@ -70,7 +74,8 @@ const SignUp = () => {
                 lastname: lastName,
                 email: email,
                 startdate: startDate,
-                enddate: endDate,   
+                enddate: endDate, 
+                supervisoname: supervisorName,  
                 gender: gender, 
                 matricno: matricNo,
                 department: department,
@@ -181,7 +186,13 @@ const SignUp = () => {
                             />
                         </div>
                     </div>
+                    <label htmlFor='supervisor_name'>Supervisor's Name</label>
+                    <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
+                        placeholder='Firstname Middlename Lastname' id='supervisor_name' name='supervisor_name' onChange={(mn) => setSupervisorName(mn.target.value)} required
+                    />
                 </div>
+
+
                 <div className='flex flex-col'>
                     <label htmlFor="gender">Gender</label>
                     <select aria-label='select gender' id='gender' 
@@ -217,16 +228,16 @@ const SignUp = () => {
                             </select>
                         </div>
                         <div className='flex flex-col'>
-                            <label htmlFor="role">Role</label>
-                            <select name="role" id="role" 
-                                className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
-                                onClick={(e) => setRole(e.target.value)}>
-                                <option value="admin">Admin</option>
-                                <option value="supervisor">Supervisoor</option>
-                                <option value="student">Student</option>
-                            </select>
                         </div>
                     </div>
+                    <label htmlFor="role">Role</label>
+                    <select name="role" id="role" 
+                        className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
+                        onClick={(e) => setRole(e.target.value)}>
+                        <option value="admin">Admin</option>
+                        <option value="supervisor">Supervisoor</option>
+                        <option value="student">Student</option>
+                    </select>
                     <label htmlFor='ppa'>Place of Attachment</label>
                     <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
                         placeholder='Place of Attachment' id='ppa' name='ppa' onChange={(ppa) => setPpa(ppa.target.value)} required/>

@@ -6,30 +6,38 @@ import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 
 const AddDailyActivity = () => {
 
+
+  const [weekNo, setWeekNo] = useState(1)
   const [date, setDate] = useState('')
   const [description,  setDescription] = useState('')
+
 
   const addDailyActivity = () => {
 
     const body = {
+      weekno: weekNo,
       date:date,
       description:description
     }
-    fetch('/add-daily-activity', {
+    fetch('http://127.0.0.1:5000/student/add-daily-activity', {
       method: "POST",
+      credentials: "include",
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
-      
-    })
+    }).then(res => res.json()).
+    then(result => console.log('result => ', result)).
+    catch(error => console.log('error => ', error))
   }
 
   return <section className='transition-all duration-500 ease-in md:w-[500px] border-[#f3f2f2] border-[1px] shadow-lg p-8 flex flex-col' aria-label="Main Content" role="region">
     <h1 className=' text-xl text-center font-bold p-4 text-blue-500'>Add Daily Activity</h1>
+    <label htmlFor='weekno'>Week Number</label> 
+    <input className="p-2 bg-[#ccc] rounded-sm my-2" type='number' id='weekno' onChange={(e) => setWeekNo(e.target.value)}/>
     <label htmlFor='date'>Select date</label> 
     <input className="p-2 bg-[#ccc] rounded-sm my-2" type='date' id='date' onChange={(e) => setDate(e.target.value)}/>
-    <label htmlFor="activity">Description</label>
+    <label htmlFor="activity">Activity Description</label>
     <textarea name="activity" id="activity" cols="30" rows="10" className="p-2 bg-[#ccc] rounded-sm my-2" onChange={(e) => setDescription(e.target.value)}></textarea>
     <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={addDailyActivity}>Add Activity</button>
   </section>

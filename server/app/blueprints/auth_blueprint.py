@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session, url_for
+from flask import Blueprint, request, jsonify, session, url_for, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import Markup
 import validators
@@ -15,6 +15,7 @@ from flask_jwt_extended import get_jwt, jwt_required, create_access_token, creat
 from os import  urandom
 from itsdangerous import URLSafeTimedSerializer
 import os
+
 
 auth_blueprint = Blueprint("auth", __name__)
 
@@ -36,11 +37,12 @@ auth_blueprint = Blueprint("auth", __name__)
 @auth_blueprint.after_request
 def refresh_expiring_jwts(response):
     try:
+        identity = get_jwt_identity()
         exp_timestamp = get_jwt()["exp"]
         now = datetime.now(timezone.utc)
         target_timestamp = datetime.timestamp(now + datetime.timedelta(minutes=30))
         if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=get_jwt_identity())
+            access_token = create_access_token(identity=identity)
             set_access_cookies(response, access_token)
         return response
     except (RuntimeError, KeyError):
@@ -109,7 +111,8 @@ def register_student():
     lastName = request.json['lastname']
     email = request.json['email']
     startDate = request.json['startdate']
-    endDate  = request.json['enddate']   
+    endDate  = request.json['enddate']  
+    supervisorName = request.json['supervisorname'] 
     gender  = request.json['gender']   
     matricNo = request.json['matricno']
     department = request.json['department']
@@ -127,6 +130,7 @@ def register_student():
     email = Markup.escape(email)
     startDate  =  Markup.escape(startDate)
     endDate =  Markup.escape(endDate)
+    supervisorName = Markup.escape(supervisorName)
     gender =  Markup.escape(gender)
     department =  Markup.escape(department)
     course = Markup.escape(course)
@@ -157,6 +161,8 @@ def register_student():
          return{"error_message": "Start date is required"}, HTTP_400_BAD_REQUEST
     if not endDate:
          return{"error_message": "End date is required"}, HTTP_400_BAD_REQUEST
+    if not supervisorName:
+         return{"error_message": "Supervisor name is required"}, HTTP_400_BAD_REQUEST
     if not gender:
          return{"error_message": "Gender is required"}, HTTP_400_BAD_REQUEST
     if not matricNo:
@@ -188,7 +194,7 @@ def register_student():
             # add user to database
         user = Student(
             firstName=firstName, middleName=middleName, lastName=lastName, email=email, 
-            startDate=startDate, endDate=endDate, gender=gender, matricNo=matricNo, 
+            startDate=startDate, endDate=endDate, supervisorName= supervisorName, gender=gender, matricNo=matricNo, 
             department=department, course=course, level=level, ppa=ppa, password=hashed_password,
             otp=otp, role=role, expiration_time=expiration_time
             )
@@ -444,10 +450,12 @@ def student_login():
         
         email = request.json.get('email')
         password = request.json.get('password')
+        remember_me = request.json.get('rememberme')
 
         # clean inputs
         email =  Markup.escape(email)
         password =  Markup.escape(password)
+        remember_me = Markup.escape(remember_me)
 
         user = Student.query.filter_by(email=email).first()
 
@@ -459,14 +467,16 @@ def student_login():
             return {"error_message": "Student not yet authenticate"}, HTTP_401_UNAUTHORIZED_ACCESS
         
         if user and user.is_verified:
+            user_id = user.id
+
             is_password_correct = check_password_hash(user.password, password)
             if is_password_correct:
 
-                access_token = create_access_token(identity=user.id)
+                access_token = create_access_token(identity=user_id)
                 # generate csrf token
                 csrf_token = urandom(16).hex();
 
-                response = jsonify({
+                response = make_response({
                     'success_message': 'Login successful!', 
                     'firstName':user.firstName,
                     'middleName': user.middleName,
@@ -485,7 +495,8 @@ def student_login():
                 })
                 
                 # Set the http-only JWT cookie
-                response.set_cookie('access_token', access_token, httponly=True)
+                # response.set_cookie('access_token', access_token, httponly=True)
+                set_access_cookies(response, access_token)
                 # Set the double submit token as a readable cookie
                 response.set_cookie('csrf_token', csrf_token)
 
@@ -499,6 +510,7 @@ def supervisor_login():
         
     email = request.json.get('email')
     password = request.json.get('password')
+    remember_me = request.json.get('rememberme')
 
     # clean inputs
     email =  Markup.escape(email)
@@ -514,14 +526,23 @@ def supervisor_login():
         return {"error_message": "User not yet authenticate"}, HTTP_401_UNAUTHORIZED_ACCESS
     
     if user and user.is_verified:
+
+        expiry_date = datetime.datetime.now()
+        user_id = user.id
+
+        if remember_me == True:
+            expiry_date = datetime.now() + datetime.timedelta(days=120) 
+
         is_password_correct = check_password_hash(user.password, password)
+
         if is_password_correct:
 
-            access_token = create_access_token(identity=user.id)
+            # create access
+            access_token = create_access_token(identity=user_id)
             # generate csrf token
             csrf_token = urandom(16).hex();
 
-            response = jsonify({
+            response = make_response({
                 'success_message': 'Login successful!', 
                 'id': user.id,
                 'firstName':user.firstName,
@@ -532,13 +553,16 @@ def supervisor_login():
                 'department': user.department,
                 'salutation': user.salutation,
                 'csrf_token': csrf_token,
+                'access_token': access_token,
                 'role': user.role
             })
             
             # Set the http-only JWT cookie
-            response.set_cookie('access_token', access_token, httponly=True)
+            # response.set_cookie('access_token_cookie', access_token, expires=expiry_date, secure=False, httponly=False, samesite='Strict')
             # Set the double submit token as a readable cookie
             response.set_cookie('csrf_token', csrf_token)
+            response.set_cookie('access_token_cookie', access_token, expires=expiry_date, secure=False, httponly=False, samesite='None')
+            # set_access_cookies(response, access_token)
 
             return response, HTTP_200_OK
         else:

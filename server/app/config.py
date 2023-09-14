@@ -10,10 +10,14 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     JWT_COOKIE_SECURE = False  #set to true in production
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=3)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=30)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
-    JWT_COOKIE_CSRF_PROTECT = True
-
+    JWT_COOKIE_CSRF_PROTECT = False
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_ACCESS_COOKIE_NAME = "access_token_cookie"
+    JWT_COOKIE_DOMAIN = "127.0.0.1"
+    JWT_COOKIE_SAMESITE = "None"
+    JWT_ACCESS_COOKIE_PATH = "/"
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
     MAIL_USE_TLS = False

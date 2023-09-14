@@ -51,11 +51,13 @@ const SignIn = () => {
 
     if (!role) {
         alert("Select role")
-        
+        setLoadingSignin(false)
     } else if (!email) {
         alert("input email")
+        setLoadingSignin(false)
     } else if (!password) {
         alert ("input password")
+        setLoadingSignin(false)
     } else {
 
         fetch(`${url}`, {
@@ -67,7 +69,8 @@ const SignIn = () => {
             },
             body: JSON.stringify({
                 'email': email,
-                'password': password
+                'password': password,
+                'rememberme':rememberMe
             })
         }).then(response => {
             /*
@@ -76,6 +79,7 @@ const SignIn = () => {
                 throw new Error(response.json);
                 
             } */
+            
             return response.json(); // Parse response as JSON
         }).then(data => {
             console.log('Data received:', data);
@@ -105,10 +109,11 @@ const SignIn = () => {
                     course:data.course,
                     level:data.level,
                     ppa: data.ppa,
-                    rememberedMe:rememberMe
+                    rememberedMe:rememberMe,
+                    csrf_token: data.csrf_token
             })
 
-                set_cookie(no_of_hours, "siwes_user_login", cookie_data, '/')
+                set_cookie(no_of_hours, "siwes_user_login", cookie_data, '/signin')
 
                 if (data.role == "student") {
                     window.open('/student ', '_self')

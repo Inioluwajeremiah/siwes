@@ -17,10 +17,11 @@ export const set_cookie = (no_of_hours, cookie_name, cookie_value, cookie_path) 
 
 export const get_cookie = (cookie_name) => {
 
-    const cookies = document.cookie.split('; ');
+    const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
+        console.log('cookie =>', cookie);
         const [name, value] = cookie.split('=');
-        if (name === cookie_name) {
+        if (name == cookie_name) {
         return decodeURIComponent(value);
         }
     }

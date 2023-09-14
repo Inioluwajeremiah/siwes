@@ -7,7 +7,7 @@ from app.status_codes import  HTTP_200_OK, HTTP_201_CREATED, \
     HTTP_409_CONFLICT, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_204_NO_CONTENT
 from functools import wraps
 from datetime import datetime
-
+from markupsafe import Markup
 
 # Create the blueprint instance
 student_blueprint = Blueprint('students', __name__)
@@ -17,7 +17,7 @@ def student_only(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         current_user = get_jwt_identity()
-        user = Student.query.filter_by(id=current_user['id']).first()
+        user = Student.query.filter_by(id=current_user).first()
         if user and user.role == 'student':
             return func(*args, **kwargs)
         else:
@@ -30,8 +30,21 @@ def student_only(func):
 @jwt_required()
 @student_only
 def get_daily_activities():
+    
     activity = request.json.get('activity')
-    date = datetime.now()
+    weekno = request.json.get('weekno')
+    date = request.json.get('date')
+
+    activity = Markup.escape(activity)
+    weekno = Markup.escape(weekno)
+    date = Markup.escape(date)
+
+    if not activity:
+        return {"error_message": "Insert activity"}
+    if not weekno:
+        return {"error_message": "Insert week number"}
+    if not date:
+        return {"error_message": "Insert date"}
 
     # import pdb
     # pdb.set_trace()
@@ -40,10 +53,14 @@ def get_daily_activities():
     user_id = get_jwt_identity()
 
     if user_id:
-        user = Student.query.filter_by(id=user_id).first();
-        return jsonify({'user_id': user.id, "email":user.email}), HTTP_200_OK
-    else:
-        return jsonify({'message': 'Unauthorized'}), HTTP_401_UNAUTHORIZED_ACCESS
+        date = datetime.strptime(date, '%Y-%m-%d')
+        student =  StudentActivity(actvity=activity, weekNo = weekno, date=date, student_id= user_id)
+        db.session.add(student)
+        db.session.commit()
+
+        return {'success_message': "record added successfully!"}, HTTP_200_OK
+    
+    return jsonify({'message': 'Unauthorized'}), HTTP_401_UNAUTHORIZED_ACCESS
 
 # Add weekly activity
 @student_blueprint.route('/add-weekly-summary', methods=['POST'])
@@ -55,9 +72,27 @@ def get_weekly_activities():
     department = request.json.get("departmentAttached")
     comment = request.json.get("studentComment")
     weekNo = request.json.get("weekNo")
-    date = datetime.now()
+    date = request.json.get('date')
 
+    summary = Markup.escape(summary)
+    department = Markup.escape(department)
+    comment = Markup.escape(comment)
+    weekNo = Markup.escape(weekNo)
+    date = Markup.escape(date)
+
+    if not summary:
+        return {"error_message": "Insert summary"}, HTTP_400_BAD_REQUEST
+    if not department:
+        return {"error_message": "Insert department"}, HTTP_400_BAD_REQUEST
+    if not comment:
+        return {"error_message": "Insert comment"}, HTTP_400_BAD_REQUEST
+    if not weekNo:
+        return {"error_message": "Insert week number"}, HTTP_400_BAD_REQUEST
+    if not date:
+        return {"error_message": "Insert date"}, HTTP_400_BAD_REQUEST
+    
     if user_id:
+        date = datetime.strftime(date, '%Y-%m-%d')
         user = Student(summary=summary, departmentAttached = department, studentComment=comment, weekNo=weekNo, data=date)
         db.session.add(user)
         db.session.commit()
@@ -70,52 +105,88 @@ def get_weekly_activities():
 @student_blueprint.get('update-activity/<int:student_id>')
 @jwt_required()
 @student_only
-def edit_activity(student_id):
-    current_user = get_jwt_identity()
+def edit_activity(id):
+    user_id = get_jwt_identity()
     activity = request.json.get('activity', '')
     weekNo = request.json.get('weekNo', '')
-    current_date = datetime.now()
-    record = StudentActivity.query.filter_by(user_id=current_user, id=id).first()
+    date = request.json.get('date','')
 
-    if not record:
-        return {'error_message': 'Item not found'}, HTTP_404_NOT_FOUND
+    activity = Markup.escape(activity)
+    weekno = Markup.escape(weekno)
+    date = Markup.escape(date)
+
+    if not activity:
+        return {"error_message": "Insert activity"}, HTTP_400_BAD_REQUEST
+    if not weekno:
+        return {"error_message": "Insert week number"}, HTTP_400_BAD_REQUEST
+    if not date:
+        return {"error_message": "Insert date"},  HTTP_400_BAD_REQUEST
     
-    record.activity = activity
-    record.weekNo = weekNo
-    record.date = current_date
 
-    db.session.commit()
+    if user_id:
+    
+        record = StudentActivity.query.filter_by(id=id, student_id=user_id).first()
+        date = datetime.strptime(date)
 
-    return {"activity": record.activity, "weekNo":record.weekNom, "date":record.date}, HTTP_200_OK
+        if not record:
+            return {'error_message': 'Record not found'}, HTTP_404_NOT_FOUND
+    
+        record.activity = activity
+        record.weekNo = weekNo
+        record.date = date
 
+        db.session.commit()
+
+        return {"activity": record.activity, "weekNo":record.weekNom, "date":record.date}, HTTP_200_OK
+    return {"error_message": "User does not exist"}, HTTP_401_UNAUTHORIZED_ACCESS
 
 # update student weekly summary
-@student_blueprint.get('update-summary/<int:student_id>')
+@student_blueprint.get('update-summary/<int:id>')
 @jwt_required()
 @student_only
-def edit_summary(student_id):
-    current_user = get_jwt_identity()
+def edit_summary(id):
+    user_id = get_jwt_identity()
     summary = request.json.get('summary', '')
     department = request.json.get('department', '')
     comment = request.json.get('comment', '')
     weekNo = request.json.get('weekno', '')
-    current_date = datetime.now()
-    record = StudentWeeklySummary.filter_by(user_id=current_user, id=id).first()
+    date = request.json.get('date')
 
-    if not record:
-        return {'error_message': 'Item not found'}, HTTP_404_NOT_FOUND
-    
-    record.summary = summary
-    record.departmentAttached = department
-    record.comment = comment
-    record.weekNo = weekNo
-    record.date = current_date
+    summary = Markup.escape(summary)
+    department = Markup.escape(department)
+    comment = Markup.escape(comment)
+    weekNo = Markup.escape(weekNo)
+    date = Markup.escape(date)
 
-    db.session.commit()
+    if not summary:
+        return {"error_message": "Insert summary"}, HTTP_400_BAD_REQUEST
+    if not department:
+        return {"error_message": "Insert department"}, HTTP_400_BAD_REQUEST
+    if not comment:
+        return {"error_message": "Insert comment"}, HTTP_400_BAD_REQUEST
+    if not weekNo:
+        return {"error_message": "Insert week number"}, HTTP_400_BAD_REQUEST
+    if not date:
+        return {"error_message": "Insert date"}, HTTP_400_BAD_REQUEST
 
-    return {
-        "summary": record.summary, "department": record.departmentAttached,
-        "comment": record.studentComment, "weekNo":record.weekNom, "date":record.date}, HTTP_200_OK
+    if user_id:
+        date = datetime.strptime(date, '%Y-%m-%d')
+        record = StudentWeeklySummary.filter_by(id=id, student_id=user_id).first()
+        
+        if not record:
+            return {'error_message': 'Record not found'}, HTTP_404_NOT_FOUND
+        
+        record.summary = summary
+        record.departmentAttached = department
+        record.comment = comment
+        record.weekNo = weekNo
+        record.date = date
+
+        db.session.commit()
+
+        return {
+            "summary": record.summary, "department": record.departmentAttached,
+            "comment": record.studentComment, "weekNo":record.weekNom, "date":record.date}, HTTP_200_OK
 
 
 # delete daily activity
@@ -123,10 +194,11 @@ def edit_summary(student_id):
 @jwt_required()
 @student_only
 def delete_daily_record(id):
-    record = StudentActivity.query.filter_by(id=id).first()
+    user_id = get_jwt_identity()
+    record = StudentActivity.query.filter_by(id=id, student_id=user_id).first()
     if not record:
         return jsonify({
-            'error_message': 'Item not found'
+            'error_message': 'Record not found'
         }), HTTP_404_NOT_FOUND
 
     db.session.delete(record)
@@ -136,12 +208,12 @@ def delete_daily_record(id):
 
 
 # delete weekly activity
-@student_blueprint.delete('/update-summary/<int:id>')
+@student_blueprint.delete('/delete-summary/<int:id>')
 @jwt_required()
 @student_only
 def delete_weekly_record(id):
     user_id = get_jwt_identity()
-    record = StudentWeeklySummary.query.filter_by(user_id=user_id, id=id).first()
+    record = StudentWeeklySummary.query.filter_by(id=id, user_id=user_id).first()
 
     if not record:
         return jsonify({'error_message': 'Record not found'}), HTTP_404_NOT_FOUND
