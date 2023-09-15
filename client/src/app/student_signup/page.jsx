@@ -234,8 +234,8 @@ const SignUp = () => {
                     <select name="role" id="role" 
                         className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
                         onClick={(e) => setRole(e.target.value)}>
-                        <option value="admin">Admin</option>
-                        <option value="supervisor">Supervisoor</option>
+                        <option value="">Select Role</option>
+                        <option value="supervisor">Supervisor</option>
                         <option value="student">Student</option>
                     </select>
                     <label htmlFor='ppa'>Place of Attachment</label>
