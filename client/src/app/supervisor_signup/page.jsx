@@ -129,7 +129,7 @@ const SignUpSupervisor = () => {
     return <>
         <Header/>
         <main role='form'
-            className='container mx-auto my-28 w-[80%] md:max-w-[600px] border-[#f3f2f2] border-[1px] shadow-lg p-8'
+            className='container mx-auto my-28 w-[96%] md:max-w-[600px] border-[#f3f2f2] border-[1px] shadow-lg p-8'
             method='POST'>
             <div className='flex flex-row'>
                 <h1 className=' w-full flex justify-end text-2xl text-center font-bold p-4 text-blue-500'>Sign Up</h1>

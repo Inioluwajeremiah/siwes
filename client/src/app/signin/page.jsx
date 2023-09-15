@@ -9,13 +9,6 @@ import { useSelector } from 'react-redux'
 
 const SignIn = () => {
 
-    // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
-    let user_details  = get_cookie('siwes_user_login')
-    
-    if (user_details) {
-        user_details = JSON.parse(user_details) ;
-    }
-
     const router = useRouter()
 
     const [email, setEmail] = useState('');
@@ -25,8 +18,16 @@ const SignIn = () => {
     const [role, setRole] = useState('')
     // const [url, setUrl] = useState('')
 
+     // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+     let user_details  = get_cookie('siwes_user_login')
+    
+     if (user_details) {
+         user_details = JSON.parse(user_details) ;
+     }
+
     console.log('role =>', role);
 
+    // sign in function
    const signIn = () => {
 
     setLoadingSignin(true)
@@ -161,7 +162,7 @@ const SignIn = () => {
                             <option value="">Select role</option>
                             <option value="student" className='w-[100%]'>Student</option>
                             <option value="supervisor" className='w-[100%]'>Supervisor</option>
-                            <option value="admin" className='w-[100%]'>Admin</option>
+                            {/* <option value="admin" className='w-[100%]'>Admin</option> */}
                         </select>
                     </div>  
                 </div>
@@ -175,7 +176,10 @@ const SignIn = () => {
                     <label htmlFor="remember_me" className='mr-4'>Remember me</label>
                     <input type="checkbox" id='remember_me' value={true} onChange={(e) => setRememberMe(e.target.value)}/>
                 </div>
-                <p className='my-4'>Not yet signed up? <Link href='/signup' className='italic underline text-blue-500'>Sign Up</Link> or <Link href='/verify-user' className='italic underline text-blue-500'>Verify user</Link></p>
+                <p className='my-4'>Not yet signed up? 
+                    <Link href={ role = "" ? "/student_signup" : role = "supervisor" ? "supervisor_signup" : role = "student" ? "/student_signup"} 
+                    className='italic underline text-blue-500'>Sign Up</Link>
+                     or <Link href='/verify-user' className='italic underline text-blue-500'>Verify user</Link></p>
                 <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={signIn}>{loadingSignin ? 'Loading...':'Sign In'}</button>
             </main>
         </>

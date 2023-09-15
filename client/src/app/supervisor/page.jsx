@@ -165,7 +165,7 @@ const Supervisor = () => {
     console.log('siwes_cookies => ', csrf_token)
     setToken(csrf_token)
 
-    fetch('http://127.0.0.1:5000/supervisor/students', {
+    fetch('https://ephphathagc.pythonanywhere.com/supervisor/students', {
       method: "GET",
       headers: {
         Accept: '*/*',

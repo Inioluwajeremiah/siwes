@@ -141,7 +141,7 @@ const SignUp = () => {
     return <>
         <Header/>
         <main role='form'
-            className='container mx-auto my-28 w-[80%] md:max-w-[600px] border-[#f3f2f2] border-[1px] shadow-lg p-8'
+            className='container mx-auto my-28 w-[96%] md:max-w-[600px] border-[#f3f2f2] border-[1px] shadow-lg p-8'
             method='POST'>
             <h1 className=' text-xl text-center font-bold p-4 text-blue-500'>Sign up</h1>
             <div className='flex flex-col md:flex-row justify-between'>
