@@ -2,9 +2,9 @@
 import React, {useEffect, useState} from 'react'
 import Header from '../components/header'
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-
 import { useSelector } from 'react-redux'
 import { get_cookie } from '../helper_functions/Cookies';
+// import { useRouter } from 'next/navigation';
 
 const AddWeeklyRemark = ({csrf_token}) => {
 
@@ -139,15 +139,19 @@ const Profile = () => {
   
 const Supervisor = () => {
 
-  let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
-  if (user_details) {
-    user_details = JSON.parse(user_details) ;
-  }
+  // const router = useRouter();
+
+  // // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+  // let user_details  = get_cookie('siwes_user_login')
+  // if (user_details) {
+  //   user_details = JSON.parse(user_details) ;
+  // }
 
 
   const [selectedContent, setSelectedContent] = useState(1)
   const [toggleSubmenu, setToggleSubMenu] = useState(false);
   const [token, setToken] = useState('')
+  const [user_details, set_user_details] = useState(null)
 
   const ToggleSubMenu = () => {
     setToggleSubMenu(!toggleSubmenu)
@@ -156,6 +160,7 @@ const Supervisor = () => {
   useEffect(() => {
     let siwes_cookies = get_cookie('siwes_user_login')
     siwes_cookies = JSON.parse(siwes_cookies)
+    set_user_details(siwes_cookies)
     const csrf_token = siwes_cookies.csrf_token
     console.log('siwes_cookies => ', csrf_token)
     setToken(csrf_token)
@@ -176,9 +181,9 @@ const Supervisor = () => {
 
   if (user_details && user_details.login == true && user_details.role == "supervisor") {
 
-    return <>
+    return <main>
       <Header/>
-      <main className='container mx-auto flex flex-col md:flex-row '>
+      <section className='container mx-auto flex flex-col md:flex-row '>
       <aside aria-label='side navigation' className='w-[100%] md:w-[25%]  md: mt-20 md:p-4 md:mr-28'>
             
             <div className='flex flex-row items-center h-16 md:hidden bg-slate-100 p-4'>
@@ -225,10 +230,11 @@ const Supervisor = () => {
           }
           </section>
 
-        </main>
-    </>
+        </section>
+    </main>
   } else {
-    window.open('/signin', '_self')
+    // router.push('/signin');
+    null
   }
 }
 

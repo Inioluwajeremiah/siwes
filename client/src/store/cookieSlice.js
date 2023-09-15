@@ -1,4 +1,6 @@
 
+'use client'
+
 import {createSlice} from '@reduxjs/toolkit'
 
 const cookie_slice = createSlice ({
@@ -6,14 +8,14 @@ const cookie_slice = createSlice ({
     initialState:{},
     reducers: {
         get_all_cookies: (state) => {
-            if (typeof document !== 'undefined') {
-              // Ensure this code runs only in a browser environment
-              const cookies = document.cookie.split(';');
-              for (const cookie of cookies) {
-                const [cookie_name, cookie_value] = cookie.trim().split('=');
-                state[cookie_name] = cookie_value;
-              }
-            }
+            // if (typeof document !== 'undefined') {
+            //   // Ensure this code runs only in a browser environment
+            //   const cookies = document.cookie.split(';');
+            //   for (const cookie of cookies) {
+            //     const [cookie_name, cookie_value] = cookie.trim().split('=');
+            //     state[cookie_name] = cookie_value;
+            //   }
+            // }
         }
     }
 });

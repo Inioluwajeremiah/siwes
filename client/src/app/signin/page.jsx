@@ -3,13 +3,14 @@
 import React, { useState } from 'react'
 import Header from '../components/header'
 import Link from 'next/link'
-import {set_cookie} from '../helper_functions/Cookies'
+import {get_cookie, set_cookie} from '../helper_functions/Cookies'
 import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 
 const SignIn = () => {
 
-    let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+    // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+    let user_details  = get_cookie('siwes_user_login')
     
     if (user_details) {
         user_details = JSON.parse(user_details) ;
@@ -116,14 +117,14 @@ const SignIn = () => {
                 set_cookie(no_of_hours, "siwes_user_login", cookie_data, '/signin')
 
                 if (data.role == "student") {
-                    window.open('/student ', '_self')
+                    router.push('/student')
                 }
 
                 if (data.role == "supervisor") {
-                    window.open('/supervisor ', '_self')
+                    router.push('/supervisor')
                 }
                 if (data.role == "admin") {
-                    window.open('/admin ', '_self')
+                    router.push('/admin')
                 }
                 // router.push('/student')
             } 
@@ -141,11 +142,11 @@ const SignIn = () => {
    }
 
     if (user_details && user_details.login == true && user_details.role == "student") {
-        window.open('/student', '_self')
+        router.push('/student')
     } else if (user_details && user_details.login == true && user_details.role == "supervisor") {
-        window.open('/supervisor', '_self')
+        router.push('/supervisor')
     } if (user_details && user_details.login == true && user_details.role == "damin") {
-        window.open('/admin', '_self')
+        router.push('/admin')
     } else {
         return <>
             <Header/>

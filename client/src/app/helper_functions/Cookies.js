@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 export const set_cookie = (no_of_hours, cookie_name, cookie_value, cookie_path) => {
     let expiry_date = null
@@ -11,26 +11,31 @@ export const set_cookie = (no_of_hours, cookie_name, cookie_value, cookie_path) 
 
     alert('expiry date =>', expiry_date);
     console.log('expiry date =>', expiry_date);
-    
-    document.cookie = `${cookie_name} = ${cookie_value}; expires=${expiry_date}; ${cookie_path}` 
+    if (typeof document !== 'undefined') {
+        document.cookie = `${cookie_name} = ${cookie_value}; expires=${expiry_date}; ${cookie_path}`
+    } 
 }
 
 export const get_cookie = (cookie_name) => {
 
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-        console.log('cookie =>', cookie);
-        const [name, value] = cookie.split('=');
-        if (name == cookie_name) {
-        return decodeURIComponent(value);
+    if (typeof document !== 'undefined') {
+
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+            console.log('cookie =>', cookie);
+            const [name, value] = cookie.split('=');
+            if (name == cookie_name) {
+            return decodeURIComponent(value);
+            }
         }
+        return null; // Cookie not found
     }
-    return null; // Cookie not found
-      
 }
 
 export const delete_cookie = (cookie_name)  => {
-    document.cookie = `${cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    if (typeof document !== 'undefined') {
+        document.cookie = `${cookie_name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
 }
 
 

@@ -1,7 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+
+import React, { useEffect, useState } from 'react'
 import Header from '../components/header'
 import { useSelector } from 'react-redux'
+// import { useRouter } from 'next/navigation';
+import { get_cookie } from '../helper_functions/Cookies';
 
 const AddDailyActivity = () => {
   return <section className='md:w-[500px] border-[#f3f2f2] border-[1px] shadow-lg p-8 flex flex-col' aria-label="Main Content" role="region">
@@ -99,14 +102,25 @@ const Profile = () => {
 
 const Admin = () => {
 
-  let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
-  if (user_details) {
-    user_details = JSON.parse(user_details) ;
-  }
+  // const router = useRouter();
+  const [user_details, set_user_details] = useState(null)
+
+  // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+  // let user_details  = get_cookie('siwes_user_login')
+  // if (user_details) {
+  //   user_details = JSON.parse(user_details) ;
+  // }
+
+  useEffect(() => {
+    let siwes_cookies = get_cookie('siwes_user_login')
+    siwes_cookies = JSON.parse(siwes_cookies)
+    set_user_details(siwes_cookies)
+
+  }, [])
 
   const [selectedContent, setSelectedContent] = useState(1)
 
-  if (user_details.login == true && user_details.role == "admin") {
+  if (user_details && user_details.login == true && user_details.role == "admin") {
 
     return <>
       <Header/>
@@ -136,7 +150,7 @@ const Admin = () => {
         </main>
     </>
   } else {
-    window.open('/signin', '_self')
+    // router.push('/signin')
   }
 }
 

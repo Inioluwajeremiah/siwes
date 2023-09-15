@@ -3,12 +3,17 @@
 import Link from 'next/link'
 import React, { useState } from 'react'
 import { AiOutlineMenu, AiOutlineClose, AiFillCaretDown, AiFillCaretUp } from "react-icons/ai";
-import { delete_cookie } from '../helper_functions/Cookies';
+import { delete_cookie, get_cookie } from '../helper_functions/Cookies';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
 
 const Header = () => {
 
-  let user_login_details = useSelector((state) => state.cookie_slice.siwes_user_login);
+  const router = useRouter()
+
+  // let user_login_details = useSelector((state) => state.cookie_slice.siwes_user_login);
+
+  let user_login_details  = get_cookie('siwes_user_login')
 
   if (user_login_details) {
     user_login_details = JSON.parse(user_login_details) ;
@@ -35,7 +40,8 @@ const Header = () => {
       console.log(data.success_message)
       if (data.success_message === 'logout successful') {
         delete_cookie('siwes_user_login')
-        window.open('/signin ', '_self')
+        // window.open('/signin ', '_self')
+        router.push('/signin ', '_self')
       }
     })
   }

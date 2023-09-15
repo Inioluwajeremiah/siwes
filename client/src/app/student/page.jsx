@@ -1,11 +1,13 @@
 'use client'
+
 import React, { useEffect, useState } from 'react'
 import Header from '../components/header'
 import { useSelector } from 'react-redux'
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+// import { useRouter } from 'next/navigation';
+import { get_cookie } from '../helper_functions/Cookies';
 
 const AddDailyActivity = () => {
-
 
   const [weekNo, setWeekNo] = useState(1)
   const [date, setDate] = useState('')
@@ -128,7 +130,10 @@ const Profile = () => {
 
 const Student = () => {
 
-  let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+  // const router = useRouter();
+
+  // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+  let user_details  = get_cookie('siwes_user_login')
   if (user_details) {
     user_details = JSON.parse(user_details) ;
   }
@@ -192,7 +197,7 @@ const Student = () => {
         </main>
     </>
   } else {
-    window.open('/signin', '_self')
+    // router.push('/signin');
   }
 }
 
