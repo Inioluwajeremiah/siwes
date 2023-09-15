@@ -21,7 +21,7 @@ const AddDailyActivity = () => {
       date:date,
       description:description
     }
-    fetch('http://127.0.0.1:5000/student/add-daily-activity', {
+    fetch('https://tallyme576.pythonanywhere.com/student/add-daily-activity', {
       method: "POST",
       credentials: "include",
       headers: {

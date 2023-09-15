@@ -85,7 +85,7 @@ const SignUp = () => {
                 password: password,
                 role: role  
                 }         
-            fetch('http://127.0.0.1:5000/auth/student/register', {
+            fetch('https://tallyme576.pythonanywhere.com/auth/student/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

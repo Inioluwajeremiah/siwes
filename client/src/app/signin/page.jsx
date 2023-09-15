@@ -36,17 +36,17 @@ const SignIn = () => {
 
     if (role == 'admin') {
         // setUrl('http://127.0.0.1:5000/auth/admin/login')
-        url = 'http://127.0.0.1:5000/auth/admin/login'
+        url = 'https://tallyme576.pythonanywhere.com/auth/admin/login'
     }
 
     if (role == 'supervisor') {
         // setUrl('http://127.0.0.1:5000/auth/supervisor/login')
-        url = 'http://127.0.0.1:5000/auth/supervisor/login'
+        url = 'https://tallyme576.pythonanywhere.com/auth/supervisor/login'
     }
 
     if (role == 'student') {
         // setUrl('http://127.0.0.1:5000/auth/student/login')
-        url = 'http://127.0.0.1:5000/auth/student/login'
+        url = 'https://tallyme576.pythonanywhere.com/auth/student/login'
     }
 
     console.log('url => ', url);

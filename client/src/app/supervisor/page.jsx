@@ -22,7 +22,7 @@ const AddWeeklyRemark = ({csrf_token}) => {
     } else if(!date) {
       alert("input date")
     } else {
-      fetch("http://127.0.0.1:5000/supervisor/add_remark", {
+      fetch("https://tallyme576.pythonanywhere.com/supervisor/add_remark", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +42,7 @@ const AddWeeklyRemark = ({csrf_token}) => {
 
     setLoadingAddRemark(true)
 
-    fetch('http://127.0.0.1:5000/supervisor/students', {
+    fetch('https://tallyme576.pythonanywhere.com/supervisor/students', {
       method: "GET",
       headers: {
         Accept: 'application/json',

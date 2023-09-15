@@ -64,7 +64,7 @@ const SignUpSupervisor = () => {
                 salutation: salutation,
                 role: role  
                 }         
-            fetch('http://127.0.0.1:5000/auth/supervisor/register', {
+            fetch('https://tallyme576.pythonanywhere.com/auth/supervisor/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -99,7 +99,7 @@ const SignUpSupervisor = () => {
 
         setResendLoading(true)
 
-        fetch('http://127.0.0.1:5000/auth/resend_code', {
+        fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
             method: "POST",
             headers: {
             'Content-Type': 'application/json'
