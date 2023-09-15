@@ -177,7 +177,7 @@ const SignIn = () => {
                     <input type="checkbox" id='remember_me' value={true} onChange={(e) => setRememberMe(e.target.value)}/>
                 </div>
                 <p className='my-4'>Not yet signed up? 
-                    <Link href={ role = "supervisor" ? "supervisor_signup" : role = "student" ? "/student_signup": "/student_signup"} 
+                    <Link href={ role == "supervisor" ? "/supervisor_signup" : role == "student" ? "/student_signup": "/student_signup"} 
                     className='italic underline text-blue-500'>Sign Up</Link>
                      or <Link href='/verify-user' className='italic underline text-blue-500'>Verify user</Link></p>
                 <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={signIn}>{loadingSignin ? 'Loading...':'Sign In'}</button>
