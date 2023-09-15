@@ -12,6 +12,7 @@ const SignUp = () => {
     const [startDate, setStartDate] = useState('')
     const [endDate, setEndDate] = useState('')
     const [gender, setGender] = useState('');
+    const [supervisorName, setSupervisorName] = useState('')
     const [matricNo, setMatricNo] = useState('')
     const [department, setDepartment] = useState('')
     const [course, setCourse]  = useState('')
@@ -21,7 +22,7 @@ const SignUp = () => {
     const [password, setPassword] = useState('');
     const [cpassword, setCpaasword] = useState('')
     const [resendCodedialog, setResendCodeDialog] = useState(false)
-    const [supervisorName, setSupervisorName] = useState('')
+    const [resendRole, setResendRole] = useState("")
 
     const [registerLoading, setRegisterLoading] = useState(false)
     const [resendcodeLoading, setResendLoading] = useState(false)
@@ -119,7 +120,7 @@ const SignUp = () => {
             headers: {
             'Content-Type': 'application/json'
             },
-            body: JSON.stringify({email: email})
+            body: JSON.stringify({email: email, resend_role:resendRole})
         })
         .then(response => {
                 
@@ -269,6 +270,13 @@ const SignUp = () => {
             <div role="dialog" aria-modal="true" aria-labelledby="modalTitle" className='fixed top-20 left-0 w-full h-full bg-[#afadf608]'>
                 <div className=' p-4 rounded mt-36 bg-white mx-auto my-20 w-[80%] max-w-[500px] border-[#f3f2f2] border-[1px] shadow-lg '>
                     <h2 className='text-center p-2' id='modalTitle'>Resend Code</h2>
+                    <select name="role" id="role" 
+                        className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
+                        onClick={(e) => setResendRole(e.target.value)}>
+                        <option value="">Select Role</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="student">Student</option>
+                    </select>
                     <p className='mb-4 text-center'>User already exists but not verified, resend code to <b>{email}</b> </p>
                     <div className='flex flex-row justify-around'>
                         <button className=' bg-orange-600 p-2 rounded text-white' onClick={() => setResendCodeDialog(false)}>Cancel</button>
