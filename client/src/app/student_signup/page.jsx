@@ -269,7 +269,7 @@ const SignUp = () => {
             <div role="dialog" aria-modal="true" aria-labelledby="modalTitle" className='fixed top-20 left-0 w-full h-full bg-[#afadf608]'>
                 <div className=' p-4 rounded mt-36 bg-white mx-auto my-20 w-[80%] max-w-[500px] border-[#f3f2f2] border-[1px] shadow-lg '>
                     <h2 className='text-center p-2' id='modalTitle'>Resend Code</h2>
-                    <p className='mb-4 text-center'>Resend code to <b>{email}</b> </p>
+                    <p className='mb-4 text-center'>User already exists but not verified, resend code to <b>{email}</b> </p>
                     <div className='flex flex-row justify-around'>
                         <button className=' bg-orange-600 p-2 rounded text-white' onClick={() => setResendCodeDialog(false)}>Cancel</button>
                         <button  className=' bg-green-600 p-2 rounded text-white' onClick={() => ResendCode(email)}>{resendcodeLoading ? 'Loading..' : 'Resend'}</button>

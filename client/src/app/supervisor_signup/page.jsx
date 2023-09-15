@@ -236,7 +236,7 @@ const SignUpSupervisor = () => {
                         </select>
                     </div> 
                 </div>  
-                    <p className='mb-4 text-center'>Resend code to <b>{email}</b> </p>
+                    <p className='mb-4 text-center'>User already exists but not verified, resend code to <b>{email}</b> </p>
                     <div className='flex flex-row justify-around'>
                         <button className=' bg-orange-600 p-2 rounded text-white' onClick={() => setResendCodeDialog(false)}>Cancel</button>
                         <button  className=' bg-green-600 p-2 rounded text-white' onClick={() => ResendCode(email)}>{resendcodeLoading ? 'Loading..' : 'Resend'}</button>
