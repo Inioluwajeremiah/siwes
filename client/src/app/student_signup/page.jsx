@@ -115,27 +115,31 @@ const SignUp = () => {
     }
 
     const ResendCode = (email) => {
-        fetch('http://127.0.0.1:5000/auth/resend_code', {
-            method: "POST",
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({email: email, resend_role:resendRole})
-        })
-        .then(response => {
+        if (!resendRole) {
+            alert("select role to continue")
+        } else {
+            fetch('http://127.0.0.1:5000/auth/resend_code', {
+                method: "POST",
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email: email, resend_role:resendRole})
+            })
+            .then(response => {
+                    
+                return response.json()
                 
-            return response.json()
-            
-        }).then(data => {
-            console.log('Data received:', data);
-            // Handle the response data
+            }).then(data => {
+                console.log('Data received:', data);
+                // Handle the response data
+                setResendLoading(false)
+            })
+            .catch(error => {
+            console.error('Fetch error:', error);
+            // Handle errors here
             setResendLoading(false)
-        })
-        .catch(error => {
-        console.error('Fetch error:', error);
-        // Handle errors here
-        setResendLoading(false)
-        })
+            })
+        }
     }
     
 
