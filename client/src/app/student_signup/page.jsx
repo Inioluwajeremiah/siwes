@@ -75,7 +75,7 @@ const SignUp = () => {
                 email: email,
                 startdate: startDate,
                 enddate: endDate, 
-                supervisoname: supervisorName,  
+                supervisorname: supervisorName,  
                 gender: gender, 
                 matricno: matricNo,
                 department: department,
