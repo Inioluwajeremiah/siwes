@@ -36,7 +36,7 @@ def create_app(test_config=None):
     migrate = Migrate(app, db)
     JWTManager(app)
     # cors = CORS(app)
-    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+    CORS(app, supports_credentials=True, origins=["https://siwes-mu.vercel.app"])
     
 
     # @app.route('/')
