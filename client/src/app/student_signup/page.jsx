@@ -118,7 +118,7 @@ const SignUp = () => {
         if (!resendRole) {
             alert("select role to continue")
         } else {
-            fetch('http://127.0.0.1:5000/auth/resend_code', {
+            fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
                 method: "POST",
                 headers: {
                 'Content-Type': 'application/json'
