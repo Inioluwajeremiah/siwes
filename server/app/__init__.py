@@ -50,6 +50,14 @@ def create_app(test_config=None):
     from .blueprints.auth_blueprint import auth_blueprint
     from .blueprints.supervisors_blueprint import supervisor_blueprint
 
+    # Define your Referrer Policy-setting function
+    @app.after_request
+    def set_referrer_policy(response):
+        response.headers["Referrer-Policy"] = "origin-when-cross-origin"
+        return response
+    # Apply the Referrer Policy to all responses
+    # app.after_request(set_referrer_policy)
+
     # Register blueprints
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(student_blueprint, url_prefix='/student')

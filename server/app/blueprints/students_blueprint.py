@@ -25,6 +25,12 @@ def student_only(func):
 
     return wrapper
 
+
+@student_blueprint.after_request
+def set_referrer_policy(response):
+    response.headers["Referrer-Policy"] = "origin-when-cross-origin"
+    return response
+
 # Add daily activity
 @student_blueprint.route('/add-daily-activity', methods=['POST'])
 @jwt_required()

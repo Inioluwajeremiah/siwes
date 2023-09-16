@@ -49,6 +49,11 @@ def refresh_expiring_jwts(response):
         # Case where there is not a valid JWT. Just return the original response
         return response
 
+@auth_blueprint.after_request
+def set_referrer_policy(response):
+    response.headers["Referrer-Policy"] = "origin-when-cross-origin"
+    return response
+
 # validate password
 def is_valid_password(password):
     # Define your password validation criteria
