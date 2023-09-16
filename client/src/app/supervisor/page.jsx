@@ -4,6 +4,7 @@ import Header from '../components/header'
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { useSelector } from 'react-redux'
 import { get_cookie } from '../helper_functions/Cookies';
+import Link from 'next/link';
 // import { useRouter } from 'next/navigation';
 
 const AddWeeklyRemark = ({csrf_token}) => {
@@ -11,6 +12,7 @@ const AddWeeklyRemark = ({csrf_token}) => {
   const [weekno, setWeekno] = useState('')
   const [remark, setRemark] = useState('')
   const [date, setDate] = useState(null);
+  const [student_id, set_student_id] = useState(1)
   const [loadingAddRemark, setLoadingAddRemark] = useState(false)
 
   const addWeeklyRemark = () => {
@@ -64,7 +66,12 @@ const AddWeeklyRemark = ({csrf_token}) => {
       <input 
         className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' 
         type='number' placeholder='Input week no' id='week'
-        onClick={(e) => setWeekno(e.target.value)}/>
+        onClick={(e) => setWeekno(e.target.value)}
+      />
+      <label htmlFor='date'>Select date</label> 
+      <input className="p-2 bg-[#ccc] rounded-sm my-2" type='date' id='date'
+        onClick={(e) => setDate(e.target.value)}
+      />
       <label htmlFor="remark">Remark</label>
       <textarea 
         name="remark" id="remark" cols="30" rows="10" 
@@ -73,10 +80,6 @@ const AddWeeklyRemark = ({csrf_token}) => {
       >
 
       </textarea>
-      <label htmlFor='date'>Select date</label> 
-      <input className="p-2 bg-[#ccc] rounded-sm my-2" type='date' id='date'
-        onClick={(e) => setDate(e.target.value)}
-      />
 
       <button 
         className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md'
@@ -236,7 +239,18 @@ const Supervisor = () => {
     </main>
   } else {
     // router.push('/signin');
-    null
+    return  <main>
+      <Header/>
+      <div className="w-[96%] md:w-1/2 mx-auto border-2 shadow px-8 mt-28 h-1/2 flex flex-col items-center" >
+        <h1 className="font-bold my-4" >Unauthorized Acess!!! </h1>
+        <div className="flex flex-row flex-wrap">
+          <button className="mb-4"><Link href="/signin" className='text-blue-500'>Signin </Link></button>
+          <span className="italic font-bold">&nbsp;or&nbsp;</span>
+          <button className="mb-4">Click<Link href="/student" className='text-blue-500'> here </Link></button>
+           <span>&nbsp;to continue</span>
+        </div>
+      </div>
+    </main>
   }
 }
 

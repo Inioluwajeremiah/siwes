@@ -78,12 +78,15 @@ const Header = () => {
 
                 { dropDown ?
                   <div className='static p-4 gap-4 top-12 right-0 flex flex-col bg-white md:absolute md:shadow-md md:border'>
-                    <li className='mb-4 md:mb-auto hover:underline hover:text-blue-500'>
-                      <Link href="/student_signup">Student</Link>
-                    </li>
-                    <li className='mb-4 md:mb-auto hover:underline hover:text-blue-500'>
-                      <Link href="/supervisor_signup">Supervisor</Link>
-                    </li>
+                    <ul>
+                      
+                      <li className='mb-4 md:mb-auto hover:underline hover:text-blue-500'>
+                        <Link href="/student_signup">Student</Link>
+                      </li>
+                      <li className='mb-4 md:mb-auto hover:underline hover:text-blue-500'>
+                        <Link href="/supervisor_signup">Supervisor</Link>
+                      </li>
+                      </ul>
                   </div>
                   : ""
                 }

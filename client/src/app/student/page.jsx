@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 // import { useRouter } from 'next/navigation';
 import { get_cookie } from '../helper_functions/Cookies';
+import Link from 'next/link';
 
 const AddDailyActivity = () => {
 
@@ -230,6 +231,18 @@ const Student = () => {
     </>
   } else {
     // router.push('/signin');
+    return  <main>
+      <Header/>
+      <div className="w-[96%] md:w-1/2 mx-auto border-2 shadow px-8 mt-28 h-1/2 flex flex-col items-center" >
+        <h1 className="font-bold my-4" >Unauthorized Acess!!! </h1>
+        <div className="flex flex-row flex-wrap">
+          <button className="mb-4"><Link href="/signin" className='text-blue-500'>Signin </Link></button>
+          <span className="italic font-bold">&nbsp;or&nbsp;</span>
+          <button className="mb-4">Click<Link href="/supervisor" className='text-blue-500'> here </Link></button>
+           <span>&nbsp;to continue</span>
+        </div>
+      </div>
+    </main>
   }
 }
 
