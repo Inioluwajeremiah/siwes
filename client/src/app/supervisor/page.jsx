@@ -161,16 +161,18 @@ const Supervisor = () => {
     let siwes_cookies = get_cookie('siwes_user_login')
     siwes_cookies = JSON.parse(siwes_cookies)
     set_user_details(siwes_cookies)
-    const csrf_token = siwes_cookies.csrf_token
-    console.log('siwes_cookies => ', csrf_token)
-    setToken(csrf_token)
+    if (siwes_cookies) {
+      const csrf_token = siwes_cookies.csrf_token
+      console.log('siwes_cookies => ', csrf_token)
+      setToken(csrf_token)
+    }
 
-    fetch('https://ephphathagc.pythonanywhere.com/supervisor/students', {
+    fetch('https://tallyme576.pythonanywhere.com/supervisor/students', {
       method: "GET",
       headers: {
         Accept: '*/*',
         "Content-Type": "application/json",
-        'X-CSRF-TOKEN': csrf_token,
+        'X-CSRF-TOKEN': token,
         // 'Authorization': `Bearer ${siwes_cookies.access_token} `
       },
     }).then(response => response.json()).then(result => 

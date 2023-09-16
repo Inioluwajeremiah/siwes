@@ -16,13 +16,17 @@ const VerifyUser = () => {
 
     // verify user function
     const verifyUser = () =>{
+        setVerifyLoading(true)
 
         if (!role) {
             alert("Select role")
+            setVerifyLoading(false)
         }else if (!email) {
             alert("Input email")
+            setVerifyLoading(false)
         } else if (!authCode) {
             alert("Input authentication code")
+            setVerifyLoading(false)
         } else {
             const body = {
                 email:email,
@@ -30,9 +34,8 @@ const VerifyUser = () => {
                 role: role
             }
             console.log(email, authCode, role);
-            setVerifyLoading(true)
             
-            fetch('http://127.0.0.1:5000/auth/verify-user', {
+            fetch('https://tallyme576.pythonanywhere.com/auth/verify-user', {
 
                 method: 'POST',
                 headers: {
@@ -44,10 +47,20 @@ const VerifyUser = () => {
             }).then(data => {
                 console.log("data:", data);
                 if (data.error_message == `token has expired`) {
+                    alert("token has expired")
                     setResendCodeDialog(true)
+                    setVerifyLoading(false)
                 }
-                if (data.success_message || data.error_message == 'User already verified, you can proceed to login') {
+                if (data.error_message == 'User already verified, you can proceed to login') {
+                   alert(data.error_message)
                     window.open('/signin', '_self')
+                }
+                if (data.success_message) {
+                    alert(data.success_message)
+                    window.open('/signin', '_self')
+                }
+                if (data.error_message) {
+                    alert(data.error_message)
                 }
                 setVerifyLoading(false)
             }).catch(error => {
@@ -64,7 +77,7 @@ const VerifyUser = () => {
 
         setResendLoading(true)
 
-        fetch('http://127.0.0.1:5000/auth/resend_code', {
+        fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
             method: "POST",
             headers: {
             'Content-Type': 'application/json'
@@ -78,11 +91,20 @@ const VerifyUser = () => {
         }).then(data => {
             console.log('Data received:', data);
             // Handle the response data
+            if (data.success_message) {
+                alert(data.success_message)  
+            }
+            if (data.error_message) {
+                alert(data.error_message)  
+            }
+            setResendLoading(false)
+
            
         })
         .catch(error => {
         console.error('Fetch error:', error);
         // Handle errors here
+        setResendLoading(false)
         })
     }
 
@@ -97,9 +119,10 @@ const VerifyUser = () => {
                         className='my-4 p-2 outline-none border justify-end'
                         onChange={(e) => setRole(e.target.value)}
                     >
+                        <option value="" className='w-[100%]'>Select Role</option>
                         <option value="student" className='w-[100%]'>Student</option>
                         <option value="supervisor" className='w-[100%]'>Supervisor</option>
-                        <option value="admin" className='w-[100%]'>Admin</option>
+                       
                     </select>
                 </div>  
             </div>
@@ -113,10 +136,19 @@ const VerifyUser = () => {
                 placeholder='Authentication code' id='auth_code' onChange={(e) => setAuthCode(e.target.value)}
             />
 
-            <p className='my-4'>Not yet signed up? &nbsp;
-                <Link href='/signup' className='text-white bg-blue-500 rounded p-2 my-2'>Sign Up</Link>  
-                &nbsp; Already signed up? &nbsp;<Link href='/signin' className='text-white bg-blue-500 rounded p-2 my-2'>Sign In</Link></p>
-            <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={verifyUser}>{verifyLoading ? 'loading...' : 'Verify'}</button>
+            <div className="flex flex-row gap-2 flex-wrap">
+                <p className='my-2'>Not yet signed up? &nbsp;
+                    <Link href={role == "student" ? '/student_signup' : role == "supervisor" ? '/supervisor_signup' :  '/student_signup'}
+                        className='text-white bg-blue-500 rounded p-2 my-4'>Sign Up
+                    </Link>  
+                </p>
+                <p className='my-2'>Already signed up? &nbsp;<Link href='/signin' className='text-white bg-blue-500 rounded p-2 my-4'>Sign In</Link></p>
+            </div>
+           
+            <button 
+                className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' 
+                onClick={verifyUser}>{verifyLoading ? 'loading...' : 'Verify'}
+            </button>
         </main>
 
         {
@@ -130,13 +162,13 @@ const VerifyUser = () => {
                             className='my-4 p-2 outline-none border justify-end' 
                             onClick={(e) => setResendRole(e.target.value)}>
                             <option value="">Role</option>     
-                            <option value="admin">Admin</option>
+                            <option value="">Select Role</option>
                             <option value="supervisor">Supervisor</option>
                             <option value="student">Student</option>
                         </select>
                     </div> 
                 </div> 
-                    <p className='mb-4 text-center'>Resend code to <b>{email}</b> </p>
+                    <p className='mb-4 text-center'>User already registered, Resend code to <b>{email}</b> </p>
                     <div className='flex flex-row justify-around'>
                         <button className=' bg-orange-600 p-2 rounded text-white' onClick={() => setResendCodeDialog(false)}>Cancel</button>
                         <button  className=' bg-green-600 p-2 rounded text-white' onClick={() => ResendCode(email)}>{resendLoading ? 'Loading...' : 'Resend'}</button>

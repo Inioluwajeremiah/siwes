@@ -115,8 +115,10 @@ const SignUp = () => {
     }
 
     const ResendCode = (email) => {
+        setResendLoading(true)
         if (!resendRole) {
             alert("select role to continue")
+            setResendLoading(false)
         } else {
             fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
                 method: "POST",
