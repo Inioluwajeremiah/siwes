@@ -28,7 +28,7 @@ def home():
 # endpoint and function to get all activities of students under a particular supervisor 
 @supervisor_blueprint.route('/students', methods=['GET'])
 @jwt_required()
-@supervisor_only
+# @supervisor_only
 def get_atudents_activities():
 
     csrf_token = request.cookies.get('csrf_token')
@@ -39,6 +39,9 @@ def get_atudents_activities():
         # first get the supervisor's full name
         current_user = get_jwt_identity()
         supervisor = Supervisor.query.filter_by(id=current_user).first()
+
+        if supervisor is  None:
+            return {"error_message": "User not found"}
 
         firstname = supervisor.firstName
         middlename = supervisor.middleName

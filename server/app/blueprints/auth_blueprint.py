@@ -53,7 +53,7 @@ def refresh_expiring_jwts(response):
 def set_referrer_policy(response):
     response.headers["Referrer-Policy"] = "origin-when-cross-origin"
     return response
-
+    
 # validate password
 def is_valid_password(password):
     # Define your password validation criteria
@@ -159,7 +159,7 @@ def register_student():
     if not middleName:
          return{"error_message":"Middlename is required"}, HTTP_400_BAD_REQUEST
     if not lastName:
-         return{"error_message": "Last name is required"}, HTTP_400_BAD_REQUEST
+         return{"error_message": "Lastname is required"}, HTTP_400_BAD_REQUEST
     if not validators.email(email):
         return {"error_message":"Invalid email address"}, HTTP_400_BAD_REQUEST
     if not startDate:
@@ -500,10 +500,10 @@ def student_login():
                 })
                 
                 # Set the http-only JWT cookie
-                # response.set_cookie('access_token', access_token, httponly=True)
-                set_access_cookies(response, access_token)
+                response.set_cookie('access_token', access_token, httponly=False)
+                # set_access_cookies(response, access_token)
                 # Set the double submit token as a readable cookie
-                response.set_cookie('csrf_token', csrf_token)
+                response.set_cookie('csrf_token', csrf_token, httponly=False)
 
                 return response, HTTP_200_OK
             else:
@@ -575,7 +575,8 @@ def supervisor_login():
 
 # user logout
 @auth_blueprint.post('/logout')
+@jwt_required()
 def logout():
-    response = jsonify({"success_message": "logout successful"})
+    response = make_response({"success_message": "logout successful!"})
     unset_jwt_cookies(response)
     return response

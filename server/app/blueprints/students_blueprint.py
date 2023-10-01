@@ -26,16 +26,109 @@ def student_only(func):
     return wrapper
 
 
-@student_blueprint.after_request
-def set_referrer_policy(response):
-    response.headers["Referrer-Policy"] = "origin-when-cross-origin"
-    return response
+# get students daily activities
+# endpoint and function to get all activities of students under a particular supervisor 
+@student_blueprint.route('/daily-activities', methods=['GET'])
+@jwt_required(optional=True)
+# @student_only
+def get_daily_activities():
+
+    csrf_token = request.cookies.get('csrf_token')
+    # access_token = request.cookies.get('access_token')
+    client_csrf_token = request.headers.get('X-CSRF-TOKEN')
+
+    if csrf_token == client_csrf_token:
+        # first get the supervisor's full name
+        # current_user = get_jwt_identity()
+        current_user = 1
+
+        student = Student.query.filter_by(id=current_user).first()
+        if student is  None:
+            return {"error_message": "User not found"}
+        
+        daily_activities_query = StudentActivity.query.filter_by(student_id=current_user)
+        daily_activities = daily_activities_query.all()
+
+        if daily_activities is None:
+            return {"error_message": "No data found"}
+
+        # Query daily activities per student
+        student_daily_data = [
+            {
+                "activity_id": student_daily_activity.id, 
+                "actvity": student_daily_activity.actvity,
+                'weekNo': student_daily_activity.weekNo,
+                'date': student_daily_activity.date
+            } 
+            for student_daily_activity in daily_activities
+        ]
+            
+        # Create a response JSON object
+        response_data = {
+            "data": student_daily_data
+        }
+
+        # Return the response as JSON
+        return jsonify(response_data), HTTP_200_OK
+    return {'error_message':f"token does not match {request.cookies} {csrf_token}  {client_csrf_token}"}, HTTP_401_UNAUTHORIZED_ACCESS
+
+# get students daily activities
+# endpoint and function to get all activities of students under a particular supervisor 
+@student_blueprint.route('/weekly-activities', methods=['GET'])
+@jwt_required()
+@student_only
+def get_weekly_activities():
+
+    csrf_token = request.cookies.get('csrf_token')
+    # access_token = request.cookies.get('access_token')
+    client_csrf_token = request.headers.get('X-CSRF-TOKEN')
+
+    if csrf_token == client_csrf_token:
+        # first get the supervisor's full name
+        current_user = get_jwt_identity()
+
+        student = Student.query.filter_by(id=current_user).first()
+        if student is  None:
+            return {"error_message": "User not found"}
+        
+        weekly_activities_query = StudentWeeklySummary.query.filter_by(student_id=current_user)
+        weekly_activities = weekly_activities_query.all()
+
+        if weekly_activities is None:
+            return {"error_message": "No data found"}
+
+        # Query weekly activities per student
+        student_weekly_data = [
+             {
+                "activity_id": student_weekly_activity.id, 
+                "summary": student_weekly_activity.summary,
+                "departmentAttached": student_weekly_activity.departmentAttached,
+                "studentComment": student_weekly_activity.studentComment,
+                "weekNo": student_weekly_activity.weekNo,
+                "date": student_weekly_activity.date,
+            } 
+            for student_weekly_activity in weekly_activities
+        ]
+            
+        # Create a response JSON object
+        response_data = {
+            "data": student_weekly_data
+        }
+
+        # Return the response as JSON
+        return jsonify(response_data), HTTP_200_OK
+    return {'error_message':"Unauthorized access"}, HTTP_401_UNAUTHORIZED_ACCESS
+
 
 # Add daily activity
 @student_blueprint.route('/add-daily-activity', methods=['POST'])
 @jwt_required()
-@student_only
-def get_daily_activities():
+# @student_only
+def add_daily_activities():
+
+    csrf_token = request.cookies.get('csrf_token')
+    client_csrf_token = request.headers.get('X-CSRF-TOKEN')
+    client_csrf_token = Markup.escape(client_csrf_token)
     
     activity = request.json.get('activity')
     weekno = request.json.get('weekno')
@@ -58,7 +151,7 @@ def get_daily_activities():
     # access_token = request.cookies.get('access_token')
     user_id = get_jwt_identity()
 
-    if user_id:
+    if user_id and csrf_token == client_csrf_token:
         date = datetime.strptime(date, '%Y-%m-%d')
         student =  StudentActivity(actvity=activity, weekNo = weekno, date=date, student_id= user_id)
         db.session.add(student)
@@ -72,7 +165,12 @@ def get_daily_activities():
 @student_blueprint.route('/add-weekly-summary', methods=['POST'])
 @jwt_required()
 @student_only
-def get_weekly_activities():
+def add_weekly_activities():
+
+    csrf_token = request.cookies.get('csrf_token')
+    client_csrf_token = request.headers.get('X-CSRF-TOKEN')
+    client_csrf_token = Markup.escape(client_csrf_token)
+
     user_id = get_jwt_identity()
     summary = request.json.get("summary")
     department = request.json.get("departmentAttached")
@@ -97,7 +195,7 @@ def get_weekly_activities():
     if not date:
         return {"error_message": "Insert date"}, HTTP_400_BAD_REQUEST
     
-    if user_id:
+    if user_id and csrf_token == client_csrf_token:
         date = datetime.strftime(date, '%Y-%m-%d')
         user = Student(summary=summary, departmentAttached = department, studentComment=comment, weekNo=weekNo, data=date)
         db.session.add(user)

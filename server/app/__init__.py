@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
-from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+
 
 
 '''
@@ -31,12 +31,12 @@ def create_app(test_config=None):
     else:
         app.config.from_object(test_config)
 
+    CORS(app,  resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
     db.init_app(app)
     mail.init_app(app)
     migrate = Migrate(app, db)
     JWTManager(app)
     # cors = CORS(app)
-    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
     
 
     # @app.route('/')
