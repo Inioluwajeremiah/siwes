@@ -26,7 +26,6 @@ def student_only(func):
 
     return wrapper
 
-
 # get students daily activities
 # endpoint and function to get all activities of students under a particular supervisor 
 @student_blueprint.route('/daily-activities', methods=['GET'])

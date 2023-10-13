@@ -529,7 +529,7 @@ def supervisor_login():
 
 # user logout
 @auth_blueprint.post('/logout')
-@login
+@login_required
 def logout():
     response = make_response({"success_message": "logout successful!"})
     return response
