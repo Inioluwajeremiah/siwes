@@ -575,7 +575,7 @@ def supervisor_login():
 
 # user logout
 @auth_blueprint.post('/logout')
-@jwt_required()
+# @jwt_required()
 def logout():
     response = make_response({"success_message": "logout successful!"})
     unset_jwt_cookies(response)
