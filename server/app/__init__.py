@@ -3,8 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-
-
+from flask_login import LoginManager
 
 '''
     # absolute import
@@ -19,6 +18,9 @@ from flask_mail import Mail
 
 db = SQLAlchemy() 
 mail = Mail()
+login_manager = LoginManager()
+jwt_manager = JWTManager()
+
 
 def create_app(test_config=None):
 
@@ -35,28 +37,20 @@ def create_app(test_config=None):
     db.init_app(app)
     mail.init_app(app)
     migrate = Migrate(app, db)
-    JWTManager(app)
+    login_manager.init_app(app)
+    jwt_manager.init_app(app)
     # cors = CORS(app)
-    
 
-    # @app.route('/')
-    # def appIndex():
-    #     return "app home page"
-
+    from .databaseModel import Student
+    @login_manager.user_loader
+    def load_user(user_id):
+        return Student.query.get(user_id)
 
     # relative imports
     from .blueprints.students_blueprint import student_blueprint
     from .blueprints.admin_blueprint import admin_blueprint
     from .blueprints.auth_blueprint import auth_blueprint
     from .blueprints.supervisors_blueprint import supervisor_blueprint
-
-    # Define your Referrer Policy-setting function
-    @app.after_request
-    def set_referrer_policy(response):
-        response.headers["Referrer-Policy"] = "origin-when-cross-origin"
-        return response
-    # Apply the Referrer Policy to all responses
-    # app.after_request(set_referrer_policy)
 
     # Register blueprints
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
@@ -70,4 +64,3 @@ def create_app(test_config=None):
     #     db.create_all()
 
     return app
-

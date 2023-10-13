@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session, url_for, make_response
+from flask import Blueprint, request, session, url_for, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import Markup
 import validators
@@ -11,10 +11,10 @@ from app import mail
 from flask_mail import Message
 import datetime
 from datetime import timezone
-from flask_jwt_extended import get_jwt, jwt_required, create_access_token, create_refresh_token, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from os import  urandom
 from itsdangerous import URLSafeTimedSerializer
 import os
+from flask_login import login_required
 
 
 auth_blueprint = Blueprint("auth", __name__)
@@ -30,30 +30,7 @@ auth_blueprint = Blueprint("auth", __name__)
     def rrsendCode()
     def login()
     def logout()
-'''
-
-# Using an `after_request` callback, we refresh any token that is within 30
-# minutes of expiring. Change the timedeltas to match the needs of your application.
-@auth_blueprint.after_request
-def refresh_expiring_jwts(response):
-    try:
-        identity = get_jwt_identity()
-        exp_timestamp = get_jwt()["exp"]
-        now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(now + datetime.timedelta(minutes=30))
-        if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=identity)
-            set_access_cookies(response, access_token)
-        return response
-    except (RuntimeError, KeyError):
-        # Case where there is not a valid JWT. Just return the original response
-        return response
-
-@auth_blueprint.after_request
-def set_referrer_policy(response):
-    response.headers["Referrer-Policy"] = "origin-when-cross-origin"
-    return response
-    
+'''    
 # validate password
 def is_valid_password(password):
     # Define your password validation criteria
@@ -288,7 +265,6 @@ def register_supervisor():
     except Exception as e:
             return {"error_message": f"error sending authentication code. Reason{e}"}, HTTP_500_INTERNAL_SERVER_ERROR
     
-
 # verify user
 @auth_blueprint.route('/verify-email/<token>', methods=['GET'])
 def verify_user(token):
@@ -398,8 +374,7 @@ def verify_User():
             # delete email from session
             session.pop('email', None)
             return {"success_message": "User verification successful"},  HTTP_200_OK
-    
-    
+      
 # resend verification code
 @auth_blueprint.route('/resend_code', methods=['POST'])
 def resend_code():
@@ -476,8 +451,6 @@ def student_login():
 
             is_password_correct = check_password_hash(user.password, password)
             if is_password_correct:
-
-                access_token = create_access_token(identity=user_id)
                 # generate csrf token
                 csrf_token = urandom(16).hex();
 
@@ -498,12 +471,6 @@ def student_login():
                     'level':user.level,
                     'ppa': user.ppa
                 })
-                
-                # Set the http-only JWT cookie
-                response.set_cookie('access_token', access_token, httponly=False)
-                # set_access_cookies(response, access_token)
-                # Set the double submit token as a readable cookie
-                response.set_cookie('csrf_token', csrf_token, httponly=False)
 
                 return response, HTTP_200_OK
             else:
@@ -542,11 +509,6 @@ def supervisor_login():
 
         if is_password_correct:
 
-            # create access
-            access_token = create_access_token(identity=user_id)
-            # generate csrf token
-            csrf_token = urandom(16).hex();
-
             response = make_response({
                 'success_message': 'Login successful!', 
                 'id': user.id,
@@ -557,26 +519,17 @@ def supervisor_login():
                 "email": user.email, 
                 'department': user.department,
                 'salutation': user.salutation,
-                'csrf_token': csrf_token,
-                'access_token': access_token,
                 'role': user.role
             })
-            
-            # Set the http-only JWT cookie
-            # response.set_cookie('access_token_cookie', access_token, expires=expiry_date, secure=False, httponly=False, samesite='Strict')
-            # Set the double submit token as a readable cookie
-            response.set_cookie('csrf_token', csrf_token)
-            response.set_cookie('access_token_cookie', access_token, expires=expiry_date, secure=False, httponly=False, samesite='None')
-            # set_access_cookies(response, access_token)
 
             return response, HTTP_200_OK
+    
         else:
             return {"error_message": "Incorrect password"}, HTTP_401_UNAUTHORIZED_ACCESS
 
 # user logout
 @auth_blueprint.post('/logout')
-# @jwt_required()
+@login
 def logout():
     response = make_response({"success_message": "logout successful!"})
-    unset_jwt_cookies(response)
     return response
