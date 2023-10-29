@@ -38,6 +38,7 @@ const Header = () => {
     headers: {
       "accept": "application/json",
       'Content-Type': 'application/json',
+      "Cookie": "session=.eJwljjsOwzAMxe7iuYNkyZ-XywT-SGhXp5mK3r0GuhIEyE84fdn1DMd73fYI52uGI-QkMlWa-GA4UkWpTNxrZlPFbGRMqnWAPQ8UISQ1MPWWqG-WSkRysogtsRg5eh46xPOMtTQiMUdB6Z4ErSnpRJ2lUmy7G_bIfdn633D4_gAdGy2n.ZT5zjg.-KazoO7hcvGGkfuDRrPcK-Ur0Zk"
 
     },
     }).then(res => res.json()).then(data => {
