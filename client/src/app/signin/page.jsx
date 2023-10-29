@@ -35,18 +35,18 @@ const SignIn = () => {
     let url = "";
 
     if (role == 'admin') {
-        // setUrl('http://127.0.0.1:5000/auth/admin/login')
-        url = 'https://tallyme576.pythonanywhere.com/auth/admin/login'
+        url = 'http://127.0.0.1:5000/auth/admin/login'
+        // url = 'https://tallyme576.pythonanywhere.com/auth/admin/login'
     }
 
     if (role == 'supervisor') {
-        // setUrl('http://127.0.0.1:5000/auth/supervisor/login')
-        url = 'https://tallyme576.pythonanywhere.com/auth/supervisor/login'
+        url = 'http://127.0.0.1:5000/auth/supervisor/login'
+        // url = 'https://tallyme576.pythonanywhere.com/auth/supervisor/login'
     }
 
     if (role == 'student') {
-        // setUrl('http://127.0.0.1:5000/auth/student/login')
-        url = 'https://tallyme576.pythonanywhere.com/auth/student/login'
+        url = 'http://127.0.0.1:5000/login/'
+        // url = 'https://tallyme576.pythonanywhere.com/auth/student/login'
     }
 
     console.log('url => ', url);
@@ -65,6 +65,7 @@ const SignIn = () => {
         fetch(`${url}`, {
 
             method: "POST",
+            credentials: 'include',
             headers: {
                 accept: 'application/json',
                 'Content-Type': 'application/json'
@@ -74,64 +75,37 @@ const SignIn = () => {
                 'password': password,
                 'rememberme':rememberMe
             })
-        }).then(response => {
-            /*
-            if (!response.ok) {
-                // throw new Error('Network response was not ok');
-                throw new Error(response.json);
-                
-            } */
-            
-            return response.json(); // Parse response as JSON
-        }).then(data => {
+        }).then(response => response.json()).then(data => {
             console.log('Data received:', data);
-            setLoadingSignin(false)
             // Handle the response data
-            if (data.success_message == 'Login successful!'){
-                
+            if (data.success){
                 let no_of_hours = 720  //expires 30 days
 
                 if (rememberMe) {
                     no_of_hours = 2160  // expires 120 days
-                }
-
-                alert("Login Successful")
+                };
                 const cookie_data = JSON.stringify( {
                     login: true,
-                    firstname: data.firstname,
-                    lastname: data.lastname,
-                    middlename: data.middlename,
-                    email: data.email,
-                    startDate: data.startDate,
-                    endDate: data.endDate,
-                    role: data.role,
-                    gender: data.gender,
-                    matricNo: data.matricNo,
-                    department:data.department,
-                    course:data.course,
-                    level:data.level,
-                    ppa: data.ppa,
-                    rememberedMe:rememberMe,
-                    csrf_token: data.csrf_token
-            })
+                    email: email,
+                    role: role
+                });
+                alert("Login Successful")
+              
+                set_cookie(no_of_hours, "siwes_user_login", cookie_data, '/')
 
-                set_cookie(no_of_hours, "siwes_user_login", cookie_data, '/signin')
-
-                if (data.role == "student") {
+                if (role == "student") {
                     router.push('/student')
                 }
 
-                if (data.role == "supervisor") {
+                if (role == "supervisor") {
                     router.push('/supervisor')
                 }
-                if (data.role == "admin") {
-                    router.push('/admin')
-                }
-                // router.push('/student')
-            } 
+                setLoadingSignin(false)
+            } //ends data.success
 
-            if (data.error_message) {
-                alert(data.error_message);
+            if (data.error) {
+                alert(data.error);
+                setLoadingSignin(false)
             }
         })
         .catch(error => {

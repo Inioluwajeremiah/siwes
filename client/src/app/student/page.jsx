@@ -7,6 +7,7 @@ import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 // import { useRouter } from 'next/navigation';
 import { get_cookie } from '../helper_functions/Cookies';
 import Link from 'next/link';
+import axios from 'axios';
 
 const AddDailyActivity = () => {
 
@@ -27,6 +28,7 @@ const AddDailyActivity = () => {
       setLoading(false)
     } else if (!description) {
       alert("Input activity")
+      setLoading(false)
     } else {
 
       const body = {
@@ -34,22 +36,25 @@ const AddDailyActivity = () => {
         date:date,
         activity:description
       }
-      fetch('https://tallyme576.pythonanywhere.com/student/add-daily-activity', {
+      // http://tallyme576.pythonanywhere.com/
+      
+      fetch('http://127.0.0.1:5000/student/add-daily-activity', {
         method: "POST",
-        credentials: "include",
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(body)
-      }).then(res => res.json()).
+      }).then(response => response.json()).
       then(result => {
 
-        if (result.success_message) {
-          alert(success_message)
+        if (result.message) {
+          alert(result.message)
           setLoading(false)
         }
         if (result.error_message) {
-          alert(result.success_message)
+          alert(result.error_message)
           setLoading(false)
         }
         alert(result)
@@ -58,7 +63,8 @@ const AddDailyActivity = () => {
 
       }).
       catch(error => {
-        alert(error)
+        // alert(error.message)
+        console.log(error.message);
         setLoading(false)
       })
     }
@@ -94,6 +100,8 @@ const AddWeeklyActivity = () => {
 }
 
 const DailyActivityTable = () => {
+
+  
   return  <section className='' aria-label="Main Content" role="region">
     <div>
       <input type="text" name="" id="" aria-label='search' />
@@ -164,12 +172,65 @@ const Profile = () => {
 const Student = () => {
 
   // const router = useRouter();
+  const [token, setToken] = useState('')
+  // const [user_details, set_user_details] = useState(null)
+  
 
-  // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
   let user_details  = get_cookie('siwes_user_login')
+  console.log('user_details_before_if =>', user_details);
   if (user_details) {
     user_details = JSON.parse(user_details) ;
+    console.log('user_details =>', user_details);
   }
+
+  useEffect(() => {
+
+    let siwes_cookies = get_cookie('siwes_user_login')
+    siwes_cookies = JSON.parse(siwes_cookies)
+    // set_user_details(siwes_cookies)
+    if (siwes_cookies) {
+    // if (user_details) {
+
+      // fetch('http://127.0.0.1:5000/student/daily-activities', {
+      //   method: "GET",
+      //   // credentials: "include",
+      //   credentials: "include",
+      //   headers: {
+      //     Accept: '*/*',
+      //     "Content-Type": "application/json",
+      //     'X-CSRF-TOKEN': csrf_token,
+      //     // 'Authorization': `Bearer ${siwes_cookies.access_token} `
+      //   },
+      // }).then(response => response.json()).then(result => 
+      //   console.log("result =>", result)).catch(error => console.log('error', error));
+    }
+
+  //   axios.get('http://127.0.0.1:5000/student/daily-activities',
+  //     {
+  //       headers: {
+  //         Accept: '*/*',
+  //         "Content-Type": "application/json",
+  //         'X-CSRF-TOKEN': csrf_token,
+  //       },
+  //       withCredentials: true
+  //     }
+  //     )
+  //     .then((response) => {
+  //     // Handle successful response
+  //     console.log('Data:', response.data);
+  //   })
+  //   .catch((error) => {
+  //     // Handle error
+  //     console.error('Error:', error);
+  //   });
+  // }
+  
+  }, [])
+
+
+
+  // let user_details = useSelector((state) => state.cookie_slice.siwes_user_login); 
+ 
 
   const [selectedContent, setSelectedContent] = useState(1);
   const [toggleSubmenu, setToggleSubMenu] = useState(false);
