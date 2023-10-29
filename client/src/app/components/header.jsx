@@ -30,20 +30,22 @@ const Header = () => {
   }
 
   const logout =  () => {
-    fetch('https://tallyme576.pythonanywhere.com/auth/logout', {
+    // fetch('https://tallyme576.pythonanywhere.com/auth/logout', {
+     fetch('http://127.0.0.1:5000/logout/', {
 
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     }).then(res => res.json()).then(data => {
-      console.log(data.success_message)
-      if (data.success_message === 'logout successful') {
+      console.log(data)
+      if (data.success) {
         delete_cookie('siwes_user_login')
+        console.log(data.success)
         // window.open('/signin ', '_self')
         router.push('/signin ', '_self')
       }
-    })
+    }).catch(error => console.log(error))
   }
 
   /*
