@@ -30,12 +30,15 @@ const Header = () => {
   }
 
   const logout =  () => {
-    // fetch('https://tallyme576.pythonanywhere.com/auth/logout', {
-     fetch('http://127.0.0.1:5000/logout/', {
+    fetch('https://siweslogbook.pythonanywhere.com/logout/', {
+    //  fetch('http://127.0.0.1:5000/logout/', {
 
     method: 'POST',
+    credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      "accept": "application/json",
+      'Content-Type': 'application/json',
+
     },
     }).then(res => res.json()).then(data => {
       console.log(data)
