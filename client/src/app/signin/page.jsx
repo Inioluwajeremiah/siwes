@@ -75,9 +75,9 @@ const SignIn = () => {
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Data received:", data);
           // Handle the response data
           if (data.msg) {
+            console.log("Data received:", data);
             let no_of_hours = 720; //expires 30 days
 
             if (rememberMe) {
