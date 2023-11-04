@@ -327,7 +327,7 @@ const WeeklyActivityTable = ({weeklySummaryData, email}) => {
               <th className="border p-2 w-1/6">Job for the Week</th>
               <th className="border p-2 w-1/6">Department</th>
               <th className="border p-2 w-1/6">Comment</th>
-              <th className="border p-2 w-1/6">Supervisor's Remark</th>
+              <th className="border p-2 w-1/6">Supervisor&apos;s Remark</th>
               <th className="border p-2 w-1/6">Week</th>
               <th className="border p-2 w-1/6">Date</th>
             </tr>

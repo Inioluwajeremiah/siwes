@@ -26,7 +26,7 @@ const WeeklyRemarkTable = ({weeklyRemarkData, email}) => {
 
             <tr className="w-full">
               <th className="border p-2 w-[10%]">SN</th>
-              <th className="border p-2 w-[22%]">Supervisor's Remark</th>
+              <th className="border p-2 w-[22%]">Supervisor&apos;s Remark</th>
               <th className="border p-2 w-[22%]">Student Email</th>
               <th className="border p-2 w-[10%]">Week</th>
               <th className="border p-2 w-[20%]">Date</th>
@@ -146,7 +146,7 @@ const AddWeeklyRemark = ({email}) => {
       <input
         className=" outline-none p-2 bg-[#ccc] rounded-sm my-2"
         type="text"
-        placeholder="Student's email"
+        placeholder="Student&apos;s email"
         id="email"
         onChange={(e) => setStudentEmail(e.target.value)}
       />
