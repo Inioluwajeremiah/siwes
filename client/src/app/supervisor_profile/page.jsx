@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import Header from '../components/header'
 import Link from 'next/link'
+import { get_cookie } from '../helper_functions/Cookies'
 
 const SignUpSupervisor = () => {
 
@@ -13,9 +14,9 @@ const SignUpSupervisor = () => {
     const [email, setEmail] = useState('');
     const [gender, setGender] = useState('');
     const [department, setDepartment] = useState('')
-    const [role, setRole] = useState('')
-    const [password, setPassword] = useState('');
-    const [cpassword, setCpaasword] = useState('')
+    // const [role, setRole] = useState('')
+    // const [password, setPassword] = useState('');
+    // const [cpassword, setCpaasword] = useState('')
     const [salutation, setSalutation] = useState('')
     const [resendCodedialog, setResendCodeDialog] = useState(false)
 
@@ -28,7 +29,7 @@ const SignUpSupervisor = () => {
         setFirstName('')
     }
 
-    const Register = () => {
+    const CompleteProfile = () => {
         
         if (!salutation) {
             alert("select appropriate salutation")
@@ -40,34 +41,41 @@ const SignUpSupervisor = () => {
             alert("input middle name")
         }else if (!lastName){
             alert("input lastname")
-        } else if (!email) {
-            alert("input email")
+        // } else if (!email) {
+        //     alert("input email")
         } else if (!gender) {
             alert ("select gender")
         } else if (!department) {
             alert ("input departmenet")
-        } else if (password.length < 8) {
-            alert("password too short. Password must have minimum of 8 characters")
-        } 
-        else if (password !== cpassword) {
-            alert("password does not match")
+        // } else if (password.length < 8) {
+        //     alert("password too short. Password must have minimum of 8 characters")
+        // } 
+        // else if (password !== cpassword) {
+        //     alert("password does not match")
         }  else {
             setRegisterLoading(true)
+
+            let user_details  = get_cookie('siwes_user_login')
+            if (user_details) {
+            user_details = JSON.parse(user_details) ;
+            // console.log('jwt => ', user_details.jwt);
+            }
+
             const body = {
+                salutation: salutation,
                 firstname: firstName,
                 middlename: middleName,
                 lastname: lastName,
-                email: email,
                 gender: gender, 
                 department: department,
-                password: password,
-                salutation: salutation,
-                role: role  
-                }         
-            fetch('https://tallyme576.pythonanywhere.com/auth/supervisor/register', {
+            }         
+            // fetch('https://tallyme576.pythonanywhere.com/auth/supervisor/register', {
+            // fetch('http://127.0.0.1:5000/supervisor_profile/', {
+            fetch("https://siweslogbook.pythonanywhere.com/supervisor_profile/", {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${user_details.jwt}`
                 },
                 body: JSON.stringify(body)
             }).then(response => {
@@ -77,11 +85,14 @@ const SignUpSupervisor = () => {
             }).then(data => {
                 console.log('Data received:', data);
                 // Handle the response data
-                if (data.error_message  ) {
-                    setResendCodeDialog(true)
+                if (data.error) {
+                    alert(data.error)
+                    // setResendCodeDialog(true)
+                    setRegisterLoading(false)
                 }
-                if (data.success_message) {
-                    window.open('/signin', '_self')
+                if (data.success) {
+                    alert(data.success)
+                    setRegisterLoading(false)
                 }
                 setRegisterLoading(false)
             })
@@ -90,40 +101,40 @@ const SignUpSupervisor = () => {
             // Handle errors here
                 setRegisterLoading(false)
             })
-             console.log(body);
+           
              
         }
     }
 
-    const ResendCode = (email) => {
+    // const ResendCode = (email) => {
 
-        setResendLoading(true)
+    //     setResendLoading(true)
 
-        fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
-            method: "POST",
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({email: email, resend_role: resendRole})
-        })
-        .then(response => {
+    //     fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
+    //         method: "POST",
+    //         headers: {
+    //         'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({email: email, resend_role: resendRole})
+    //     })
+    //     .then(response => {
                 
-            return response.json()
+    //         return response.json()
             
-        }).then(data => {
-            console.log('Data received:', data);
-            // Handle the response data
-            if (data.success_message) {
-                window.open('/signin', '_self')
-            }
-            setResendLoading(false)
-        })
-        .catch(error => {
-        console.error('Fetch error:', error);
-        // Handle errors here
-        setResendLoading(false)
-        })
-    }
+    //     }).then(data => {
+    //         console.log('Data received:', data);
+    //         // Handle the response data
+    //         if (data.success_message) {
+    //             window.open('/signin', '_self')
+    //         }
+    //         setResendLoading(false)
+    //     })
+    //     .catch(error => {
+    //     console.error('Fetch error:', error);
+    //     // Handle errors here
+    //     setResendLoading(false)
+    //     })
+    // }
     
 
     return <>
@@ -132,13 +143,13 @@ const SignUpSupervisor = () => {
             className='container mx-auto my-28 w-[96%] md:max-w-[600px] border-[#f3f2f2] border-[1px] shadow-lg p-8'
             method='POST'>
             <div className='flex flex-row'>
-                <h1 className=' w-full flex justify-end text-2xl text-center font-bold p-4 text-blue-500'>Sign Up</h1>
+                <h1 className=' w-full flex justify-end text-2xl text-center font-bold p-4 text-green-500'>Profile</h1>
                 <div className='w-full flex justify-end'>
                     <select name="salutation" id="salutation"
                         className='my-4 p-2 outline-none border justify-end'
                         onChange={(e) => setSalutation(e.target.value)}
                     >
-                        <option value="">Select role</option>
+                        <option value="">Select salutation</option>
                         <option value="mr" className='w-[100%]'>Mr</option>
                         <option value="dr" className='w-[100%]'>Dr</option>
                         <option value="prof" className='w-[100%]'>Prof.</option>
@@ -161,12 +172,7 @@ const SignUpSupervisor = () => {
                         onChange={(ln) => setLastName(ln.target.value)}
                         required
                     />
-                    <label htmlFor='email'>Email</label>
-                    <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
-                        placeholder='Email' id='email' name='email'
-                        onChange={(eml)=> setEmail(eml.target.value)}
-                        required
-                    />
+                    
                 </div>
                 <div className='flex flex-col'>
                     <label htmlFor='department'>Department</label>
@@ -185,36 +191,12 @@ const SignUpSupervisor = () => {
                                 <option value="female">Female</option> 
                             </select>
                         </div>
-                        <div className='flex flex-col'>
-                            <label htmlFor="role">Role</label>
-                            <select name="role" id="role" 
-                                className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
-                                onClick={(e) => setRole(e.target.value)}>
-                                <option value="admin">Admin</option>
-                                <option value="supervisor">Supervisor</option>
-                                <option value="student">Student</option>
-                            </select>
-                        </div>
                     </div>
-                     {/* password */}
-                    <div className='flex flex-col  justify-around'>
-                        <div className='flex flex-col'>
-                            <label htmlFor="password">Password</label>
-                            <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' placeholder='Password' 
-                                id='password' onChange={(pwd) => setPassword(pwd.target.value)} name='password' required minLength={8} maxLength={20}/>
-                        </div>
-                        <div className='flex flex-col'>
-                            <label htmlFor="cpassword">Confirm password</label>
-                            <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
-                                placeholder='Confirm password' id='cpassword' name='cpassword' onChange={(cpwd) => setCpaasword(cpwd.target.value)}
-                                required
-                                />
-                        </div>        
-                    </div>
+                   
                 </div>
             </div>
-            <p className='my-2'>Already signed up? <Link rel="stylesheet" href="/signin" className='text-white bg-blue-500 rounded p-2'>Sign In </Link></p>
-            <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={Register}>{registerLoading ? 'Loading...' : 'Sign Up'}</button>
+        
+            <button className='mt-10 px-4 py-2 mx-auto text-white bg-green-500 items-center flex flex-row justify-center rounded-md' onClick={CompleteProfile}>{registerLoading ? 'Loading...' : 'Submit'}</button>
             {/* <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' type='submit'>Sign Up</button> */}
            
         </main>

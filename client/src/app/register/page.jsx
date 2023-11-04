@@ -31,6 +31,7 @@ const SignUp = () => {
     } else {
 
         // fetch(`${url}`, {
+        // fetch("http://127.0.0.1:5000/register/", {
         fetch('https://siweslogbook.pythonanywhere.com/register/', {
 
             method: "POST",
@@ -47,7 +48,7 @@ const SignUp = () => {
             // Handle the response data
             if (data.success){
                 alert(data.success)
-                router.push('/login')
+                router.push('/signin')
                 setLoading(false)
             } //ends data.success
 
@@ -55,7 +56,6 @@ const SignUp = () => {
                 alert(data.error);
                 setLoading(false)
             }
-            alert(data.message);
             setLoading(false)
         })
         .catch(error => {

@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, jsonify, request
-from app.databaseModel import db, Supervisor, Student, StudentActivity, StudentWeeklySummary, SupervisorActivity
+from app.databaseModel import db, Supervisor, User, StudentActivity, StudentWeeklySummary, SupervisorActivity
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.status_codes import HTTP_200_OK, HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED_ACCESS
 from datetime import datetime
@@ -49,7 +49,7 @@ def get_atudents_activities():
         fullname = f"{firstname} {middlename} {lastname}"
 
         # then filter the students table by the supervisor's full name
-        supervisor_students = Student.query.filter_by(supervisorName = fullname).all()
+        supervisor_students = User.query.filter_by(supervisorName = fullname).all()
 
         # convert the returned list to a list of dictionary 
         students_json = [

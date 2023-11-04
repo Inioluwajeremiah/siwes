@@ -6,7 +6,7 @@ from app.status_codes import HTTP_200_OK, HTTP_201_CREATED, \
     HTTP_409_CONFLICT, HTTP_500_INTERNAL_SERVER_ERROR
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity
-from app.databaseModel import Student
+from app.databaseModel import User
 
 # Create the blueprint instance
 admin_blueprint = Blueprint('admin', __name__)
@@ -16,7 +16,7 @@ def admin_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         current_user = get_jwt_identity()
-        user = Student.query.filter_by(id=current_user['id']).first()
+        user = Userilter_by(id=current_user['id']).first()
         if user and user.role == 'admin':
             return func(*args, **kwargs)
         else:

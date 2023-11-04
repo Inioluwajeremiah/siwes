@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.databaseModel import Student, StudentWeeklySummary, StudentActivity
+from app.databaseModel import User, StudentWeeklySummary, StudentActivity
 from app.status_codes import  HTTP_200_OK, HTTP_201_CREATED, \
     HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED_ACCESS, HTTP_404_NOT_FOUND, \
     HTTP_409_CONFLICT, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_204_NO_CONTENT
@@ -18,7 +18,7 @@ def student_only(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         current_user = get_jwt_identity()
-        user = Student.query.filter_by(id=current_user).first()
+        user = User.query.filter_by(id=current_user).first()
         if user and user.role == 'student':
             return func(*args, **kwargs)
         else:
@@ -36,11 +36,11 @@ def get_daily_activities():
 # get students daily activities
 # endpoint and function to get all activities of students under a particular supervisor 
 @student_blueprint.route('/weekly-activities', methods=['GET'])
-@jwt_required()
+@login_required
 @student_only
 def get_weekly_activities():
 
-    student = Student.query.filter_by(id=current_user.id).first()
+    student = User.query.filter_by(id=current_user.id).first()
     if student is  None:
         return {"error_message": "User not found"}
     
@@ -96,17 +96,18 @@ def add_daily_activities():
     # pdb.set_trace()
 
     # access_token = request.cookies.get('access_token')
-    user_id = get_jwt_identity()
+    user_id = current_user.id
+    # user_id = 1
 
     if user_id:
-        date = datetime.strptime(date, '%Y-%m-%d')
+        # date = datetime.strptime(date, '%Y-%m-%d')
         student =  StudentActivity(actvity=activity, weekNo = weekno, date=date, student_id= user_id)
         db.session.add(student)
         db.session.commit()
 
-        return {'success_message': "record added successfully!"}, HTTP_200_OK
-    
-    return jsonify({'message': 'Unauthorized'}), HTTP_401_UNAUTHORIZED_ACCESS
+        return jsonify({'message': 'record added successfully!'}), HTTP_200_OK
+  
+    return jsonify({'error_message': 'User not found'}), HTTP_404_NOT_FOUND
 
 # Add weekly activity
 @student_blueprint.route('/add-weekly-summary', methods=['POST'])

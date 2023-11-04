@@ -9,11 +9,11 @@ export const set_cookie = (no_of_hours, cookie_name, cookie_value, cookie_path) 
         expiry_date = expiry_date.toUTCString();
     }
 
-    alert('expiry date =>', expiry_date);
-    console.log('expiry date =>', expiry_date);
+    // alert('expiry date =>', expiry_date);
+    // console.log('expiry date =>', expiry_date);
     if (typeof document !== 'undefined') {
         document.cookie = `${cookie_name} = ${cookie_value}; expires=${expiry_date}; ${cookie_path}`
-        alert("login details saved in cookie ")
+        // alert("login details saved in cookie ")
     } 
 }
 
@@ -25,10 +25,10 @@ export const get_cookie = (cookie_name) => {
 
             const cookies = document.cookie.split(';');
             for (const cookie of cookies) {
-                console.log('cookie =>', cookie);
+                // console.log('cookie =>', cookie);
                 const [name, value] = cookie.trim().split('=');
                 if (name ==  cookie_name) {
-                    console.log("name, value => ", name, value);
+                    // console.log("name, value => ", name, value);
                     return decodeURIComponent(value);
                 }
             }

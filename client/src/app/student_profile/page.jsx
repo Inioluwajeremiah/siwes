@@ -3,12 +3,13 @@
 import { use, useState } from 'react'
 import Header from '../components/header'
 import Link from 'next/link'
+import { get_cookie } from '../helper_functions/Cookies'
 
-const SignUp = () => {
+const StudentProfile = () => {
     const [firstName, setFirstName] = useState('');
     const [middleName, setMiddleName] = useState('')
     const [lastName, setLastName] = useState('')
-    const [email, setEmail] = useState('');
+    // const [email, setEmail] = useState('');
     const [startDate, setStartDate] = useState('')
     const [endDate, setEndDate] = useState('')
     const [gender, setGender] = useState('');
@@ -17,12 +18,12 @@ const SignUp = () => {
     const [department, setDepartment] = useState('')
     const [course, setCourse]  = useState('')
     const [level, setLevel] = useState('')
-    const [role, setRole] = useState('')
+    // const [role, setRole] = useState('')
     const [ppa, setPpa] = useState('')
-    const [password, setPassword] = useState('');
-    const [cpassword, setCpaasword] = useState('')
+    // const [password, setPassword] = useState('');
+    // const [cpassword, setCpaasword] = useState('')
     const [resendCodedialog, setResendCodeDialog] = useState(false)
-    const [resendRole, setResendRole] = useState("")
+    // const [resendRole, setResendRole] = useState("")
 
     const [registerLoading, setRegisterLoading] = useState(false)
     const [resendcodeLoading, setResendLoading] = useState(false)
@@ -32,7 +33,7 @@ const SignUp = () => {
         setFirstName('')
     }
 
-    const Register = () => {
+    const CompleteProfile = () => {
         
         if (!firstName) {
             alert('input first name')
@@ -43,9 +44,11 @@ const SignUp = () => {
             alert("input lastname")
         } else if (!matricNo) {
             alert ("input matriculation number")
-        } else if (!email) {
-            alert("input email")
-        } else if (!startDate) {
+        } 
+        // else if (!email) {
+        //     alert("input email")
+        // } 
+        else if (!startDate) {
             alert("input start date")
         } else if (!endDate) {
             alert ("input end date")
@@ -62,18 +65,25 @@ const SignUp = () => {
             alert("select level")
         } else if (!ppa) {
             alert("input place of attachment")
-        } else if (password.length < 8) {
-            alert("password too short. Password must have minimum of 8 characters")
-        } 
-        else if (password !== cpassword) {
-            alert("password does not match")
+        // } else if (password.length < 8) {
+        //     alert("password too short. Password must have minimum of 8 characters")
+        // } 
+        // else if (password !== cpassword) {
+        //     alert("password does not match")
         }  else {
+
             setRegisterLoading(true)
+            let user_details  = get_cookie('siwes_user_login')
+            if (user_details) {
+            user_details = JSON.parse(user_details) ;
+            // console.log('jwt => ', user_details.jwt);
+            }
+
             const body = {
                 firstname: firstName,
                 middlename: middleName,
                 lastname: lastName,
-                email: email,
+                // email: email,
                 startdate: startDate,
                 enddate: endDate, 
                 supervisorname: supervisorName,  
@@ -83,13 +93,16 @@ const SignUp = () => {
                 course: course,
                 level: level,
                 ppa: ppa,
-                password: password,
-                role: role  
+                // password: password,
+                // role: role  
                 }         
-            fetch('https://tallyme576.pythonanywhere.com/auth/student/register', {
+            // fetch('https://tallyme576.pythonanywhere.com/auth/student/register', {
+            // fetch('http://127.0.0.1:5000/student_profile/', {
+            fetch("https://siweslogbook.pythonanywhere.com/student_profile/", {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${user_details.jwt}`
                 },
                 body: JSON.stringify(body)
             }).then(response => {
@@ -99,9 +112,16 @@ const SignUp = () => {
             }).then(data => {
                 console.log('Data received:', data);
                 // Handle the response data
-                if (data.error_message == `${email} registered but not verified` || data.error_message == `${matricNo} registered but not verified` ) {
-                    setResendCodeDialog(true)
+                if (data.error) {
+                    alert(data.error)
+                    // setResendCodeDialog(true)
+                    setRegisterLoading(false)
                 }
+                if (data.success) {
+                    alert(data.success)
+                    setRegisterLoading(false)
+                }
+
                 setRegisterLoading(false)
             })
             .catch(error => {
@@ -109,40 +129,39 @@ const SignUp = () => {
             // Handle errors here
                 setRegisterLoading(false)
             })
-             console.log(body);
              
         }
     }
 
-    const ResendCode = (email) => {
-        setResendLoading(true)
-        if (!resendRole) {
-            alert("select role to continue")
-            setResendLoading(false)
-        } else {
-            fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
-                method: "POST",
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({email: email, resend_role:resendRole})
-            })
-            .then(response => {
+    // const ResendCode = (email) => {
+    //     setResendLoading(true)
+    //     if (!resendRole) {
+    //         alert("select role to continue")
+    //         setResendLoading(false)
+    //     } else {
+    //         fetch('https://tallyme576.pythonanywhere.com/auth/resend_code', {
+    //             method: "POST",
+    //             headers: {
+    //             'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({email: email, resend_role:resendRole})
+    //         })
+    //         .then(response => {
                     
-                return response.json()
+    //             return response.json()
                 
-            }).then(data => {
-                console.log('Data received:', data);
-                // Handle the response data
-                setResendLoading(false)
-            })
-            .catch(error => {
-            console.error('Fetch error:', error);
-            // Handle errors here
-            setResendLoading(false)
-            })
-        }
-    }
+    //         }).then(data => {
+    //             console.log('Data received:', data);
+    //             // Handle the response data
+    //             setResendLoading(false)
+    //         })
+    //         .catch(error => {
+    //         console.error('Fetch error:', error);
+    //         // Handle errors here
+    //         setResendLoading(false)
+    //         })
+    //     }
+    // }
     
 
     return <>
@@ -150,7 +169,7 @@ const SignUp = () => {
         <main role='form'
             className='container mx-auto my-28 w-[96%] md:max-w-[600px] border-[#f3f2f2] border-[1px] shadow-lg p-8'
             method='POST'>
-            <h1 className=' text-xl text-center font-bold p-4 text-blue-500'>Sign up</h1>
+            <h1 className=' text-xl text-center font-bold p-4 text-blue-500'>Profile</h1>
             <div className='flex flex-col md:flex-row justify-between'>
                 <div className='flex flex-col'>
                     <label htmlFor='firstname'>First Name</label>
@@ -170,12 +189,12 @@ const SignUp = () => {
                     <label htmlFor='matricno'>Matric. Number</label>
                     <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' placeholder='Matric. Number' 
                         id='matricno' name='matricno' onChange={(mat) => setMatricNo(mat.target.value)} required/>
-                    <label htmlFor='email'>Email</label>
+                    {/* <label htmlFor='email'>Email</label>
                     <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
                         placeholder='Email' id='email' name='email'
                         onChange={(eml)=> setEmail(eml.target.value)}
                         required
-                    />
+                    /> */}
                      {/* duration */}
                     <div className='flex flex-col'>
                         <div className='flex flex-col'>
@@ -237,19 +256,19 @@ const SignUp = () => {
                         <div className='flex flex-col'>
                         </div>
                     </div>
-                    <label htmlFor="role">Role</label>
+                    {/* <label htmlFor="role">Role</label>
                     <select name="role" id="role" 
                         className='my-2 outline-none hover:cursor-pointer border-[1px] border-[#ddd] px-1 py-2' 
                         onClick={(e) => setRole(e.target.value)}>
                         <option value="">Select Role</option>
                         <option value="supervisor">Supervisor</option>
                         <option value="student">Student</option>
-                    </select>
+                    </select> */}
                     <label htmlFor='ppa'>Place of Attachment</label>
                     <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' 
                         placeholder='Place of Attachment' id='ppa' name='ppa' onChange={(ppa) => setPpa(ppa.target.value)} required/>
                      {/* password */}
-                    <div className='flex flex-col  justify-around'>
+                    {/* <div className='flex flex-col  justify-around'>
                         <div className='flex flex-col'>
                             <label htmlFor="password">Password</label>
                             <input className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' type='text' placeholder='Password' 
@@ -262,11 +281,11 @@ const SignUp = () => {
                                 required
                                 />
                         </div>        
-                    </div>
+                    </div> */}
                 </div>
             </div>
-            <p className='my-2'>Already signed up? <Link rel="stylesheet" href="/signin" className='text-white bg-blue-500 rounded p-2'>Sign In </Link></p>
-            <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={Register}>{registerLoading ? 'Loading...' : 'Sign Up'}</button>
+            {/* <p className='my-2'>Already signed up? <Link rel="stylesheet" href="/signin" className='text-white bg-blue-500 rounded p-2'>Sign In </Link></p> */}
+            <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' onClick={CompleteProfile}>{registerLoading ? 'Loading...' : 'Submit'}</button>
             {/* <button className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md' type='submit'>Sign Up</button> */}
            
         </main>
@@ -295,4 +314,4 @@ const SignUp = () => {
     </>
 }
 
-export default SignUp
+export default StudentProfile

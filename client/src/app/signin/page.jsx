@@ -60,6 +60,7 @@ const SignIn = () => {
       setLoadingSignin(false);
     } else {
       // fetch(`${url}`, {
+      // fetch("http://127.0.0.1:5000/login/", {
       fetch("https://siweslogbook.pythonanywhere.com/login/", {
         method: "POST",
         credentials: "include",
@@ -71,22 +72,25 @@ const SignIn = () => {
           email: email,
           password: password,
           rememberme: rememberMe,
+          role:role
         }),
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log("Data received:", data);
           // Handle the response data
-          if (data.msg) {
-            console.log("Data received:", data);
+          if (data.success) {
             let no_of_hours = 720; //expires 30 days
 
             if (rememberMe) {
-              no_of_hours = 2160; // expires 120 days
+              // no_of_hours = 2160; // expires 120 days
+              no_of_hours = 720; // expires 120 days
             }
             const cookie_data = JSON.stringify({
               login: true,
               email: email,
               role: role,
+              jwt: data.access_token
             });
             alert("Login Successful");
 

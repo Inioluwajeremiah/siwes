@@ -1,142 +1,190 @@
 "use client"
+
 import React, {useEffect, useState} from 'react'
 import Header from '../components/header'
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-import { useSelector } from 'react-redux'
 import { get_cookie } from '../helper_functions/Cookies';
 import Link from 'next/link';
 // import { useRouter } from 'next/navigation';
 
-const AddWeeklyRemark = ({csrf_token}) => {
 
-  const [weekno, setWeekno] = useState('')
-  const [remark, setRemark] = useState('')
-  const [date, setDate] = useState(null);
-  const [student_id, set_student_id] = useState(1)
-  const [loadingAddRemark, setLoadingAddRemark] = useState(false)
+const WeeklyRemarkTable = ({weeklyRemarkData, email}) => {
+  return (
+    <section
+      className="px-6 md:px-10 w-[90%]"
+      aria-label="Main Content"
+      role="region"
+    >
+      <div className="flex flex-col md:flex-row justify-center items-center p-4 my-8 ">
+        <h1 className="text-green-500 text-xl font-bold">Weekly Summary</h1>
+        <h1 className="ml-8">{email}</h1>
+      </div>
+
+      <div className=' overflow-x-scroll'>
+        <table className="mx-auto table-auto w-full border-collapse border text-left">
+          <thead>
+
+            <tr className="w-full">
+              <th className="border p-2 w-[10%]">SN</th>
+              <th className="border p-2 w-[22%]">Supervisor's Remark</th>
+              <th className="border p-2 w-[22%]">Student Email</th>
+              <th className="border p-2 w-[10%]">Week</th>
+              <th className="border p-2 w-[20%]">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {weeklyRemarkData.map((item, index) => {
+              // replace summary with job
+              return (
+                <tr key={index} className="border">
+                  <td className="border p-2 w-[10%]">{index + 1}</td>
+                  <td className="border p-2 w-[22%]">{item.remark}</td>
+                  <td className="border p-2 w-[22%]">{item.student_email}</td>
+                  <td className="border p-2 w-[10%]">{item.weekNo}</td>
+                  <td className="border p-2 w-[20%]">{item.date}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+};
+
+const AddWeeklyRemark = ({email}) => {
+  const [weekNo, setWeekNo] = useState("");
+  const [date, setDate] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
+  const [remark, setRemark] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const addWeeklyRemark = () => {
-
-    if (!weekno) {
-      alert("Input week number")
+    if (!weekNo) {
+      alert("insert week number");
+    } else if (!date) {
+      alert("Insert date");
+    } else if (!studentEmail) {
+      alert("Input student email");
     } else if (!remark) {
-      alert("Input remark")
-    } else if(!date) {
-      alert("input date")
+      alert("Input remark");
     } else {
-      fetch("https://tallyme576.pythonanywhere.com/supervisor/add_remark", {
+      setLoading(true);
+
+      let user_details = get_cookie("siwes_user_login");
+      console.log("user_details_before_if =>", user_details);
+      if (user_details) {
+        user_details = JSON.parse(user_details);
+        console.log("user_details =>", user_details);
+      }
+      const body = {
+        weekno: weekNo,
+        date: date,
+        student_email: studentEmail,
+        remark: remark,
+      };
+      // http://tallyme576.pythonanywhere.com/
+
+      // fetch("http://127.0.0.1:5000/supervisor/add-weekly-remark", {
+      fetch("https://siweslogbook.pythonanywhere.com/supervisor/add-weekly-remark", {
         method: "POST",
+        credentials: "include",
         headers: {
+          accept: "application/json",
           "Content-Type": "application/json",
-          "X-CSRF-TOKEN": '5c771ca70ed74040798e36e651ec2489'
+          Authorization: `Bearer ${user_details.jwt}`,
         },
-        body: JSON.stringify({
-          student_id: student_id,
-          weekno: weekno,
-          remark: remark,
-          date: date
-        })
+        body: JSON.stringify(body),
       })
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.success) {
+            alert(result.success);
+            setLoading(false);
+          }
+          if (result.error) {
+            alert(result.error);
+            setLoading(false);
+          }
+          // alert(result)
+          console.log(result);
+          setLoading(false);
+        })
+        .catch((error) => {
+          // alert(error.message)
+          console.log(error.message);
+          setLoading(false);
+        });
     }
-  }
+  };
+  return (
+    <section
+      className="md:w-[500px] border-[#f3f2f2] border-[1px] shadow-lg p-8 flex flex-col"
+      aria-label="Main Content"
+      role="region"
+    >
+       <div className="flex flex-col md:flex-row justify-center items-center p-4 my-8 ">
+        <h1 className="text-green-500 text-xl font-bold">Add Weekly Remark</h1>
+        <h1 className="ml-8">{email}</h1>
+      </div>
 
-  const fetchData = () => {
-
-    setLoadingAddRemark(true)
-
-    fetch('https://tallyme576.pythonanywhere.com/supervisor/students', {
-      method: "GET",
-      headers: {
-        Accept: 'application/json',
-        "Content-Type": "application/json",
-        'X-CSRF-TOKEN': csrf_token
-      },
-      credentials:"same-origin"
-      
-    }).then(response => response.json()).then((result) => {
-      console.log("result =>", result);
-      setLoadingAddRemark(false)
-    })
-  }
-
-    return <section className='md:w-[500px] border-[#f3f2f2] border-[1px] shadow-lg p-8 flex flex-col' aria-label="Main Content" role="region">
-      <h1 className=' text-xl text-center font-bold p-4 text-blue-500'>Add Weekly RemarK</h1>
-
-      <label htmlFor='week'>Week No.</label>
-      <input 
-        className=' outline-none p-2 bg-[#ccc] rounded-sm my-2' 
-        type='number' placeholder='Input week no' id='week'
-        onClick={(e) => setWeekno(e.target.value)}
+      <label htmlFor="weekno">Week Number</label>
+      <input
+        className="p-2 bg-[#ccc] rounded-sm my-2"
+        type="number"
+        id="weekno"
+        onChange={(e) => setWeekNo(e.target.value)}
       />
-      <label htmlFor='date'>Select date</label> 
-      <input className="p-2 bg-[#ccc] rounded-sm my-2" type='date' id='date'
-        onClick={(e) => setDate(e.target.value)}
+      <label htmlFor="startdate">Select date</label>
+      <input
+        className="p-2 bg-[#ccc] rounded-sm my-2"
+        type="date"
+        id="startdate"
+        onChange={(e) => setDate(e.target.value)}
+      />
+      <label htmlFor="email">Student email</label>
+      <input
+        className=" outline-none p-2 bg-[#ccc] rounded-sm my-2"
+        type="text"
+        placeholder="Student's email"
+        id="email"
+        onChange={(e) => setStudentEmail(e.target.value)}
       />
       <label htmlFor="remark">Remark</label>
-      <textarea 
-        name="remark" id="remark" cols="30" rows="10" 
+      <textarea
+        name="remark"
+        id="remark"
+        cols="30"
+        rows="10"
         className="p-2 bg-[#ccc] rounded-sm my-2"
-        onClick={(e) => setRemark(e.target.value)}
+        onChange={(e) => setRemark(e.target.value)}
+      ></textarea>
+      <button
+        className="mt-10 px-4 py-2 mx-auto text-white bg-green-500 items-center flex flex-row justify-center rounded-md"
+        onClick={addWeeklyRemark}
       >
-
-      </textarea>
-
-      <button 
-        className='mt-10 px-4 py-2 mx-auto text-white bg-blue-500 items-center flex flex-row justify-center rounded-md'
-        onClick={fetchData}
-        >
-        {loadingAddRemark ? "Loading"  : 'Submit'}
+        {loading ? "Loading..." : "Add Remark"}
       </button>
     </section>
+  );
 }
 
-const DailyActivitiesTable = () => {
-  return <div>
-    <h1>Daily Activities</h1>
-  </div>
-}
-  
-const WeeklyActivitiesTable = () => {
-  return  <section className='' aria-label="Main Content" role="region">
-    <div>
-      <input type="text" name="" id="" aria-label='search' />
-      <select name="filter" aria-label='filter by date' id="">
-        <option value="ascending">Ascending</option>
-        <option value="descending">Descending</option>
-      </select>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>SN</th>
-          <th>Date</th>
-          <th>Job for the Week</th>
-          <th>Department Attached</th>
-          <th>Student Comment</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>01/01/01</td>
-          <td>Analysis of machine logic</td>
-          <td>Mechatronics</td>
-          <td>Successfully carried out system logic tests</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-}
+const Profile = ({profileData, email, role}) => {
 
-const SupervisorWeeklyRemarks = () => {
-  return <div>
-    <h1>Weekly Remark</h1>
-  </div>
-}
-
-const Profile = () => {
     return <section className='' aria-label="Main Content" role="region">
-        <h1>Prifile</h1>
+         <div className="flex flex-col md:flex-row justify-center items-center p-4 my-8 ">
+        <h1 className="text-green-500 text-xl font-bold">Profile Details</h1>
+        <h1 className="ml-8">{email}</h1>
+      </div>
+
+      <div className="p-4 md:p-8">
+        <h1>{profileData.salutaion} {profileData.firstName} {profileData.middleName} {profileData.lastName}</h1>
+        <div className="flex flex-row gap-2">
+          <h1 className="py-2 text-[1em]"><span className="font-bold">Role: </span>{role}</h1>
+          <h1 className="py-2 text-[1em]"><span className="font-bold">Gender: </span>{profileData.gender}</h1>
+        </div>
+        <h1 className="py-2 text-[1em]"><span className="font-bold">Department: </span>{profileData.department}</h1>
+      </div>
     </section>
 }
   
@@ -150,14 +198,76 @@ const Supervisor = () => {
   //   user_details = JSON.parse(user_details) ;
   // }
 
+  const [weeklyRemarkData, setWeeklyRemarkData] = useState([]);
+  const [profileData, setProfileData] = useState({})
 
   const [selectedContent, setSelectedContent] = useState(1)
   const [toggleSubmenu, setToggleSubMenu] = useState(false);
-  const [token, setToken] = useState('')
   const [user_details, set_user_details] = useState(null)
 
   const ToggleSubMenu = () => {
     setToggleSubMenu(!toggleSubmenu)
+  }
+
+  const GetWeeklyRemark = (jwt) => {
+    // fetch("http://127.0.0.1:5000/supervisor/weekly-remarks", {
+    fetch("https://siweslogbook.pythonanywhere.com/supervisor/weekly-remarks", {
+      method: "GET",
+      // credentials: "include",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        // 'X-CSRF-TOKEN': csrf_token,
+        'Authorization': `Bearer ${jwt}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.data) {
+          setWeeklyRemarkData(result.data);
+        }
+        if (result.error) {
+          alert(result.error)
+          
+        }
+        console.log("result =>", result);
+      })
+      .catch((error) => {
+        // alert(error.message);
+        console.log("error", error);
+      });
+  };
+
+  const GetProfileData = (jwt) => {
+    fetch("https://siweslogbook.pythonanywhere.com/supervisor_profile/", {
+    // fetch("http://127.0.0.1:5000/supervisor_profile/", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': `Bearer ${jwt}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.data) {
+          setProfileData(result.data);
+        }
+        if (result.nill) {
+          alert(result.message)
+          
+        }
+        if (result.error) {
+          alert(result.error)
+          
+        }
+        console.log("result =>", result);
+      })
+      .catch((error) => {
+        // alert(error.message);
+        console.log("error", error);
+      });
+
   }
 
   useEffect(() => {
@@ -165,21 +275,9 @@ const Supervisor = () => {
     siwes_cookies = JSON.parse(siwes_cookies)
     set_user_details(siwes_cookies)
     if (siwes_cookies) {
-      const csrf_token = siwes_cookies.csrf_token
-      console.log('siwes_cookies => ', csrf_token)
-      setToken(csrf_token)
+      GetWeeklyRemark(siwes_cookies.jwt);
+      GetProfileData(siwes_cookies.jwt)
     }
-
-    fetch('https://tallyme576.pythonanywhere.com/supervisor/students', {
-      method: "GET",
-      headers: {
-        Accept: '*/*',
-        "Content-Type": "application/json",
-        'X-CSRF-TOKEN': token,
-        // 'Authorization': `Bearer ${siwes_cookies.access_token} `
-      },
-    }).then(response => response.json()).then(result => 
-      console.log("result =>", result)).catch(error => console.log('error', error));
   
   }, [])
 
@@ -206,11 +304,9 @@ const Supervisor = () => {
               `}
             >
               <ul className='flex flex-col justify-start items-start'>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(1)}>Add daily activity</button>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(2)}>Students&apos; daily activities</button>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(3)}>Students&apos; weekly activities</button>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(4)}>Weekly Remarks</button>
-                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(5)}>Profile</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(1)}>Add Weekly Remark</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(2)}>Weekly Remarks</button>
+                <button className='p-4 w-full hover:cursor-pointer text-start text-white mb-4 bg-green-500 rounded-sm' onClick={()=> setSelectedContent(3)}>Profile</button>
               </ul>
             </nav>
 
@@ -226,11 +322,9 @@ const Supervisor = () => {
           <section className='mb-24 md:mt-24'>
 
           {
-            selectedContent == 1 ? <AddWeeklyRemark csrf_token={token}/>  
-            : selectedContent == 2 ? <WeeklyActivitiesTable/>
-            : selectedContent == 3 ? <WeeklyActivitiesTable/>
-            : selectedContent == 4 ? <SupervisorWeeklyRemarks/>
-            : selectedContent == 5 ? <Profile/>
+            selectedContent == 1 ? <AddWeeklyRemark email={user_details.email}/>  
+            : selectedContent == 2 ? <WeeklyRemarkTable weeklyRemarkData={weeklyRemarkData} email={user_details.email}/>
+            : selectedContent == 3 ? <Profile profileData={profileData} email={user_details.email} role={user_details.role}/>
             : ""
           }
           </section>

@@ -1,9 +1,17 @@
 from app import db
+from flask_login import UserMixin
 
 # app = create_app()
 # db = app.db
 
-class Student(db.Model):
+class User (UserMixin, db.Model):
+    email = db.Column(db.String(100), unique=True, nullable=False) 
+    password = db.Column(db.String(128), nullable=False)
+    otp = db.Column(db.String(6), nullable=False)
+    is_verified = db.Column(db.Boolean, default=False)
+    role = db.Column(db.String(20), nullable=False) 
+
+class Student(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstName = db.Column(db.String(100), nullable=False)
     middleName = db.Column(db.String(100), nullable=False)
@@ -18,14 +26,11 @@ class Student(db.Model):
     course = db.Column(db.String(50), nullable=False)
     level = db.Column(db.Integer, nullable=False)
     ppa = db.Column(db.String(300), nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-    otp = db.Column(db.String(6), nullable=False)
-    is_verified = db.Column(db.Boolean, default=False)
-    role = db.Column(db.String(20), nullable=False)
+    
     expiration_time = db.Column(db.DateTime, nullable=False)
 
-    student_activities = db.relationship("StudentActivity", backref="student")
-    student_weekly_summary = db.relationship("StudentWeeklySummary", backref="student")
+    student_activities = db.relationship("StudentActivity", backref="user")
+    student_weekly_summary = db.relationship("StudentWeeklySummary", backref="user")
 
     def __repr__(self):
         return f'User: \n{self.id} \n{self.email}'
@@ -39,7 +44,7 @@ class StudentActivity(db.Model):
 
     # relationships: 
     # Foreign key to link with StudentProfile (based on id)
-    student_id =db.Column(db.Integer, db.ForeignKey('student.id'), unique=True, nullable=False)
+    student_id =db.Column(db.Integer, db.ForeignKey('user.id'),  nullable=False)
 
     def __repr__(self):
         return f'Student activities: \n{self.id} \n{self.activity} \n{self.weekNo} \n{self.date}'
@@ -54,7 +59,7 @@ class StudentWeeklySummary(db.Model):
     date = db.Column(db.DateTime, nullable=False)
 
     # relationship
-    student_id =db.Column(db.Integer, db.ForeignKey('student.id'), unique=True, nullable=False)
+    student_id =db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f'Weekly summary: \n{self.id} \n{self.summary} \n{self.departmentAttached} \n{self.studentComment}'

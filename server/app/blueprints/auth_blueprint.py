@@ -6,7 +6,7 @@ from app.status_codes import HTTP_200_OK, HTTP_201_CREATED,\
     HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED_ACCESS, HTTP_404_NOT_FOUND, \
     HTTP_409_CONFLICT, HTTP_500_INTERNAL_SERVER_ERROR
 import random
-from app.databaseModel import db, Student, Supervisor
+from app.databaseModel import db, User, Supervisor
 from app import mail
 from flask_mail import Message
 import datetime
@@ -14,7 +14,7 @@ from datetime import timezone
 from os import  urandom
 from itsdangerous import URLSafeTimedSerializer
 import os
-from flask_login import login_required
+from flask_login import login_user, logout_user, login_required
 
 
 auth_blueprint = Blueprint("auth", __name__)
@@ -121,9 +121,9 @@ def register_student():
     password =  Markup.escape(password)
     role =  Markup.escape(role)
 
-    is_user_verified = Student.query.filter_by(email=email, is_verified=True).first()
-    user_by_email = Student.query.filter_by(email=email, is_verified=False).first()
-    user_by_matric_no = Student.query.filter_by(matricNo=matricNo, is_verified=False).first()
+    is_user_verified = User.query.filter_by(email=email, is_verified=True).first()
+    user_by_email = User.query.filter_by(email=email, is_verified=False).first()
+    user_by_matric_no = User.query.filter_by(matricNo=matricNo, is_verified=False).first()
    
     if is_user_verified:
         return {"error_message": "Student already exists"}, HTTP_409_CONFLICT
@@ -174,7 +174,7 @@ def register_student():
     try:
         sendEmail(email, otp)
             # add user to database
-        user = Student(
+        user = User(
             firstName=firstName, middleName=middleName, lastName=lastName, email=email, 
             startDate=startDate, endDate=endDate, supervisorName= supervisorName, gender=gender, matricNo=matricNo, 
             department=department, course=course, level=level, ppa=ppa, password=hashed_password,
@@ -273,7 +273,7 @@ def verify_user(token):
         user_email = serializer.loads(token, salt='email-verification', max_age=6000)
        
         # fetch user from database with retrieved email
-        user = Student.query.filter_by(email=user_email).first()
+        user = User.query.filter_by(email=user_email).first()
         # if user does not exist in database
         if user is None:
             return {"error_message": "Student does not exist, kindly Sign up to continue"}, HTTP_404_NOT_FOUND
@@ -311,7 +311,7 @@ def verify_User():
 
     if role == "student":
          # fetch user from database with retrieved email
-        user = Student.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
         # if user does not exist in database
         if user is None:
             return {"error_message": "Student does not exist, kindly Sign up to continue"}, HTTP_404_NOT_FOUND
@@ -384,8 +384,8 @@ def resend_code():
 
     if role == 'student':
 
-        user_verified = Student.query.filter_by(email=email, is_verified=True).first()
-        user = Student.query.filter_by(email=email, is_verified=False).first()
+        user_verified = User.query.filter_by(email=email, is_verified=True).first()
+        user = User.query.filter_by(email=email, is_verified=False).first()
 
         if user_verified:
             return {"error_message": "Student already verified"}, HTTP_409_CONFLICT
@@ -437,7 +437,7 @@ def student_login():
         password =  Markup.escape(password)
         remember_me = Markup.escape(remember_me)
 
-        user = Student.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
         if not user:
             return {"error_message": "Student not found. Sign up to continue"}, HTTP_401_UNAUTHORIZED_ACCESS
@@ -471,6 +471,7 @@ def student_login():
                     'level':user.level,
                     'ppa': user.ppa
                 })
+                login_user(user)
 
                 return response, HTTP_200_OK
             else:
@@ -531,5 +532,6 @@ def supervisor_login():
 @auth_blueprint.post('/logout')
 @login_required
 def logout():
-    response = make_response({"success_message": "logout successful!"})
+    logout_user()
+    response = {"success_message": "logout successful!"}
     return response
